@@ -6,28 +6,63 @@ filter: Linear,Linear
 repeat: none
 rekaneturengas
   rotate: false
-  xy: 2, 2
+  xy: 456, 483
   size: 3, 26
   orig: 3, 26
   offset: 0, 0
   index: -1
 rekanrengas
   rotate: false
-  xy: 260, 329
+  xy: 2, 2
   size: 17, 30
   orig: 17, 30
   offset: 0, 0
   index: -1
+rekka
+  rotate: false
+  xy: 260, 294
+  size: 84, 215
+  orig: 84, 215
+  offset: 0, 0
+  index: -1
+rekkaylos
+  rotate: false
+  xy: 260, 294
+  size: 84, 215
+  orig: 84, 215
+  offset: 0, 0
+  index: -1
 rekkarenkaaton
   rotate: false
-  xy: 2, 103
+  xy: 2, 253
   size: 256, 256
   orig: 256, 256
   offset: 0, 0
   index: -1
+rekkarenkaatonkapea
+  rotate: false
+  xy: 2, 34
+  size: 87, 217
+  orig: 87, 217
+  offset: 0, 0
+  index: -1
+rekkarenkaatonkapein
+  rotate: false
+  xy: 91, 38
+  size: 76, 213
+  orig: 76, 213
+  offset: 0, 0
+  index: -1
+rekkarotate
+  rotate: false
+  xy: 169, 167
+  size: 215, 84
+  orig: 215, 84
+  offset: 0, 0
+  index: -1
 ruoho
   rotate: false
-  xy: 2, 30
+  xy: 346, 438
   size: 108, 71
   orig: 108, 71
   offset: 0, 0

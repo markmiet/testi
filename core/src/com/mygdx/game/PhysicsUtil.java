@@ -22,6 +22,7 @@ public abstract class PhysicsUtil {
             case Polygon: {
                 PolygonShape shape = (PolygonShape) fixture.getShape();
 
+
                 Vector2 tmp = new Vector2();
                 shape.getVertex(0, tmp);
                 tmp = fixture.getBody().getWorldPoint(tmp);

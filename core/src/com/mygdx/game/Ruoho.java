@@ -3,14 +3,13 @@ package com.mygdx.game;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.uwsoft.editor.renderer.components.DimensionsComponent;
 import com.uwsoft.editor.renderer.components.PolygonComponent;
 import com.uwsoft.editor.renderer.components.TextureRegionComponent;
 import com.uwsoft.editor.renderer.components.TransformComponent;
 import com.uwsoft.editor.renderer.components.physics.PhysicsBodyComponent;
-import com.uwsoft.editor.renderer.components.sprite.SpriteAnimationComponent;
-import com.uwsoft.editor.renderer.components.sprite.SpriteAnimationStateComponent;
 import com.uwsoft.editor.renderer.physics.PhysicsBodyLoader;
 import com.uwsoft.editor.renderer.scripts.IScript;
 import com.uwsoft.editor.renderer.utils.ComponentRetriever;
@@ -23,13 +22,14 @@ public class Ruoho extends Sprite implements IScript {
 
     public PhysicsBodyComponent physicsBodyComponent;
     Entity entity;
+    float w = 0;
+    float h = 0;
     private TransformComponent transformComponent;
     private DimensionsComponent dimensionsComponent;
     private PolygonComponent polygonComponent;
     private PlayScreen playscreen;
     private float stateTime = 0;
-
-    private  TextureRegionComponent textureRegionComponent;
+    private TextureRegionComponent textureRegionComponent;
 
     public Ruoho(PlayScreen playscreen) {
         this.playscreen = playscreen;
@@ -47,7 +47,10 @@ public class Ruoho extends Sprite implements IScript {
 //        sasComponent = ComponentRetriever.get(entity, SpriteAnimationStateComponent.class);
 //        walkAnimation = sasComponent.currentAnimation;
 
-        textureRegionComponent= ComponentRetriever.get(entity, TextureRegionComponent.class);
+        textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
+        if (textureRegionComponent.polygonSprite != null) {
+            System.out.println("pologyonsrpite!=NUll");
+        }
 
         defineMario();
     }
@@ -70,21 +73,41 @@ public class Ruoho extends Sprite implements IScript {
                         transformComponent);
         physicsBodyComponent.body.setUserData(this);
 
+
+        physicsBodyComponent.body.setAngularDamping(3);
+        physicsBodyComponent.body.setLinearDamping(2f);
+
     }
 
     public void update(float dt) {
-        if (physicsBodyComponent==null) {
+        if (physicsBodyComponent == null) {
             System.out.println("physicsBodyComponent==null");
         }
-        if (physicsBodyComponent.body==null) {
+        if (physicsBodyComponent.body == null) {
             System.out.println("physicsBodyComponent.body==null");
         }
-        BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
-        boundingBox.min.scl(MyGdxGame.PPM);
-        boundingBox.max.scl(MyGdxGame.PPM);
-        setBounds(boundingBox.min.x / MyGdxGame.PPM, boundingBox.min.y / MyGdxGame.PPM, (boundingBox.max.x - boundingBox.min.x) / MyGdxGame.PPM,
-                (boundingBox.max.y - boundingBox.min.y) / MyGdxGame.PPM);
-        setOrigin(getX() + getWidth() / 2f, getY() + getHeight() / 2f);
+
+        if (w == 0) {
+            BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
+
+            w = (boundingBox.max.x - boundingBox.min.x);
+
+            h = (boundingBox.max.y - boundingBox.min.y);
+        }
+
+
+//        boundingBox.min.scl(MyGdxGame.PPM);
+//        boundingBox.max.scl(MyGdxGame.PPM);
+//        setBounds(boundingBox.min.x , boundingBox.min.y, (boundingBox.max.x - boundingBox.min.x),
+//                (boundingBox.max.y - boundingBox.min.y) );
+
+//        setBounds(physicsBodyComponent.body.getPosition().x,
+//                physicsBodyComponent.body.getPosition().y,
+//                10,10);
+        setBounds(physicsBodyComponent.body.getPosition().x - getWidth() / 2, physicsBodyComponent.body.getPosition().y - getHeight() / 2, w, h);
+        this.setOriginCenter();
+        float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
+        this.setRotation(deg);
         setRegion(getFrame(dt));
 
     }
@@ -95,5 +118,16 @@ public class Ruoho extends Sprite implements IScript {
         return textureRegionComponent.region;
 
     }
+
+//    public void draw(Batch batch, float delta) {
+//        float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
+//
+//        TextureRegion keyFrame = getFrame(delta);
+//        batch.draw(keyFrame, getX(), getY(),
+//                getWidth() / 2.0f,
+//                getHeight() / 2.0f, getWidth(), getHeight(),
+//                1f, 1f, deg-90, false);
+//
+//    }
 
 }

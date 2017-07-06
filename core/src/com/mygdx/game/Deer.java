@@ -76,15 +76,59 @@ public class Deer extends Sprite implements IScript {
 
     }
 
+    float w=0;
+    float h=0;
+
     public void update(float dt) {
 //        this.setRotation(physicsBodyComponent.body.getAngle());
 
-        BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
-        boundingBox.min.scl(MyGdxGame.PPM);
-        boundingBox.max.scl(MyGdxGame.PPM);
-        setBounds(boundingBox.min.x / MyGdxGame.PPM, boundingBox.min.y / MyGdxGame.PPM, (boundingBox.max.x - boundingBox.min.x) / MyGdxGame.PPM,
-                (boundingBox.max.y - boundingBox.min.y) / MyGdxGame.PPM);
-        setOrigin(getX() + getWidth() / 2f, getY() + getHeight() / 2f);
+//        BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
+//        boundingBox.min.scl(MyGdxGame.PPM);
+//        boundingBox.max.scl(MyGdxGame.PPM);
+//        setBounds(boundingBox.min.x / MyGdxGame.PPM, boundingBox.min.y / MyGdxGame.PPM, (boundingBox.max.x - boundingBox.min.x) / MyGdxGame.PPM,
+//                (boundingBox.max.y - boundingBox.min.y) / MyGdxGame.PPM);
+        /*
+//        if (w==0)
+            w=(boundingBox.max.x - boundingBox.min.x);
+//
+//        if (h==0)
+            h=(boundingBox.max.y - boundingBox.min.y);
+//
+//
+
+//        setBounds(this.physicsBodyComponent.body.getPosition().x ,this.physicsBodyComponent.body.getPosition().y , w ,h);
+        setBounds(boundingBox.min.x , boundingBox.min.y , w ,h);
+
+
+        */
+
+        if (w == 0) {
+            BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
+
+            w = (boundingBox.max.x - boundingBox.min.x);
+
+            h = (boundingBox.max.y - boundingBox.min.y);
+        }
+        setBounds(physicsBodyComponent.body.getPosition().x - getWidth() / 2, physicsBodyComponent.body.getPosition().y - getHeight() / 2, w, h);
+        this.setOriginCenter();
+        float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
+        this.setRotation(deg);
+
+
+//        setOrigin(getX() + getWidth() / 2f, getY() + getHeight() / 2f);
+
+
+//        this.setX(boundingBox.min.x / MyGdxGame.PPM);
+//        this.setY(boundingBox.min.y / MyGdxGame.PPM);
+//        this.setSize(13,13);
+
+//        setBounds(boundingBox.min.x / MyGdxGame.PPM, boundingBox.min.y / MyGdxGame.PPM,13,13);
+
+//        System.out.println("leveys="+this.getWidth());
+//        System.out.println("korkeus="+this.getHeight());
+
+
+//        this.setOriginCenter();
         setRegion(getFrame(dt));
 //System.out.println("angle="+ physicsBodyComponent.body.getAngle() );
 
@@ -101,15 +145,21 @@ public class Deer extends Sprite implements IScript {
         return region;
     }
 
-    public void draw(Batch batch, float delta) {
-        float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
-        TextureRegion keyFrame = getFrame(delta);
-        batch.draw(keyFrame, getX(), getY(),
-                getWidth() / 2.0f,
-                getHeight() / 2.0f, getWidth(), getHeight(),
-                1f, 1f, deg - 90, false);
-
-//        physicsBodyComponent.body.setFixedRotation(true);
-    }
+//    public void draw(Batch batch, float delta) {
+//        float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
+//        TextureRegion keyFrame = getFrame(delta);
+////        System.out.println("keyFrame.getRegionWidth()="+keyFrame.getRegionWidth());
+////        System.out.println("keyFrame.getRegionWidth()="+keyFrame.getRegionHeight());
+////        System.out.println("getWidth="+getWidth());
+////        System.out.println("getHeight()="+getHeight());
+//
+//
+//        batch.draw(keyFrame, getX(), getY(),
+//                getWidth() / 2.0f,
+//                getHeight() / 2.0f, getWidth(), getHeight(),
+//                1f, 1f, deg-90 , false);
+//
+////        physicsBodyComponent.body.setFixedRotation(true);
+//    }
 
 }

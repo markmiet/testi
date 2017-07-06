@@ -41,8 +41,12 @@ public class PlayScreen implements Screen {
     private SceneLoader sl;
     private ItemWrapper rootItem;
     private Deer deer;
+    private Deer deer2;
+
 
     private Ruoho ruoho;
+    private Ruoho rekka;
+
 
     private List<Ruoho> rekanOsat=new ArrayList<Ruoho>();
 
@@ -101,28 +105,38 @@ public class PlayScreen implements Screen {
         rootItem = new ItemWrapper(sl.getRoot());
         rootItem.getChild("deer").addScript(deer);
 
+        deer2 = new Deer(this);
+        rootItem = new ItemWrapper(sl.getRoot());
+        rootItem.getChild("deer2").addScript(deer2);
 
-//        ruoho = new Ruoho(this);
-//        rootItem = new ItemWrapper(sl.getRoot());
-//        rootItem.getChild("ruoho").addScript(ruoho);
 
+        ruoho = new Ruoho(this);
+        rootItem = new ItemWrapper(sl.getRoot());
+        rootItem.getChild("ruoho").addScript(ruoho);
+
+
+        rekka = new Ruoho(this);
+        rootItem = new ItemWrapper(sl.getRoot());
+        rootItem.getChild("rekka").addScript(rekka);
 
 //        Rekka rekka = new Rekka(this);
 //        rootItem = new ItemWrapper(sl.getRoot());
 //        rootItem.getChild("rekka").addScript(rekka);
+        /*
         Entity rekkaentity =
                 rootItem.getChild("rekka").getEntity();
 
         NodeComponent n = ComponentRetriever.get(rekkaentity, NodeComponent.class);
+
         for (Entity e : n.children) {
             Ruoho r = new Ruoho(this);
 
-            ItemWrapper ii = new ItemWrapper(e);
+            ItemWrapper ii = new ItemWrapper();
             IScript iskripti=ii.addScript(r);
             rekanOsat.add((Ruoho)iskripti);
         }
 
-
+*/
     }
 
     public void update(float dt) {
@@ -133,12 +147,16 @@ public class PlayScreen implements Screen {
         //takes 1 step in the physics simulation(60 times per second)
         world.step(1 / 60f, 6, 2);
         deer.update(dt);
-//        ruoho.update(dt);
-        if (rekanOsat!=null) {
-            for (Ruoho r:rekanOsat) {
-                r.update(dt);
-            }
-        }
+        deer2.update(dt);
+
+        ruoho.update(dt);
+        rekka.update(dt);
+
+//        if (rekanOsat!=null) {
+//            for (Ruoho r:rekanOsat) {
+//                r.update(dt);
+//            }
+//        }
 
 
 //        player.update(dt);
@@ -197,12 +215,25 @@ public class PlayScreen implements Screen {
 //        float degree=MathUtils.radDeg(deer.physicsBodyComponent.body.getAngle());
 
 
-//        ruoho.draw(game.batch);
-        for (Ruoho r:rekanOsat) {
-            r.draw(game.batch);
-        }
-        deer.draw(game.batch, delta);
+        ruoho.draw(game.batch);
+//        ruoho.draw(game.batch,delta);
 
+//        rekka.draw(game.batch,delta);
+        rekka.draw(game.batch);
+
+
+//        for (Ruoho r:rekanOsat) {
+//            r.draw(game.batch);
+//        }
+//        deer.draw(game.batch, delta);
+//        deer2.draw(game.batch, delta);
+
+        deer.draw(game.batch);
+        deer2.draw(game.batch);
+
+
+
+//        rekka.draw(game.batch,delta);
 
 //        player.draw(game.batch);
 //        for (Enemy enemy : creator.getEnemies())
