@@ -34,14 +34,14 @@ public class Tire {
 		body = world.createBody(bodyDef);
 
 		PolygonShape polygonShape = new PolygonShape();
-		polygonShape.setAsBox(0.5f, 1.25f);
+		polygonShape.setAsBox(0.5f, 2.25f);
 		
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.density = 1;
 		fixtureDef.shape = polygonShape;
 		fixtureDef.isSensor = true;
-		fixtureDef.filter.categoryBits = Constants.TIRE;
-		fixtureDef.filter.maskBits  = Constants.GROUND;
+//		fixtureDef.filter.categoryBits = Constants.TIRE;
+//		fixtureDef.filter.maskBits  = Constants.GROUND;
 		Fixture fixture = body.createFixture(fixtureDef);
 		fixture.setUserData(new CarTireType());
 

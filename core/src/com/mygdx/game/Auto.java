@@ -37,6 +37,9 @@ public class Auto extends Sprite implements IScript {
     Entity entity;
     float w = 0;
     float h = 0;
+    //
+    Array<Tire> tires;
+    RevoluteJoint leftJoint, rightJoint;
     private TransformComponent transformComponent;
     private DimensionsComponent dimensionsComponent;
     private PolygonComponent polygonComponent;
@@ -79,6 +82,7 @@ public class Auto extends Sprite implements IScript {
     public void defineMario() {
 
         //
+
         PhysicsBodyLoader instanssi =
                 PhysicsBodyLoader.getInstance();
         physicsBodyComponent.body =
@@ -90,40 +94,51 @@ public class Auto extends Sprite implements IScript {
         physicsBodyComponent.body.setAngularDamping(3);
         physicsBodyComponent.body.setLinearDamping(2f);
         //
+        float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
+        System.out.println("deg="+deg);
 
+
+//        if (w == 0) {
+//            BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
+//
+//            w = (boundingBox.max.x - boundingBox.min.x);
+//
+//            h = (boundingBox.max.y - boundingBox.min.y);
+//        }
 
         tires = new Array<Tire>();
+/*
+        BodyDef bodyDef = new BodyDef();
 
-//        BodyDef bodyDef = new BodyDef();
-//
-//        bodyDef.type = BodyDef.BodyType.DynamicBody;
-//
-//        bodyDef.position.set(new Vector2(3, 3));
-//
-//        body = world.createBody(bodyDef);
-//        body.setAngularDamping(3);
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
 
-//        Vector2[] vertices = new Vector2[8];
-//
-//        vertices[0] = new Vector2(1.5f, 0);
-//        vertices[1] = new Vector2(3, 2.5f);
-//        vertices[2] = new Vector2(2.8f, 5.5f);
-//        vertices[3] = new Vector2(1, 10);
-//        vertices[4] = new Vector2(-1, 10);
-//        vertices[5] = new Vector2(-2.8f, 5.5f);
-//        vertices[6] = new Vector2(-3, 2.5f);
-//        vertices[7] = new Vector2(-1.5f, 0);
-//
-//        PolygonShape polygonShape = new PolygonShape();
-//        polygonShape.set(vertices);
-//
-//        FixtureDef fixtureDef = new FixtureDef();
-//        fixtureDef.shape = polygonShape;
-//        fixtureDef.density = 0.1f;
+        bodyDef.position.set(new Vector2(3, 3));
+
+        physicsBodyComponent.body = this.playscreen.world.createBody(bodyDef);
+        physicsBodyComponent.body.setAngularDamping(3);
+
+        Vector2[] vertices = new Vector2[8];
+
+        vertices[0] = new Vector2(1.5f, 0);
+        vertices[1] = new Vector2(3, 2.5f);
+        vertices[2] = new Vector2(2.8f, 5.5f);
+        vertices[3] = new Vector2(1, 10);
+        vertices[4] = new Vector2(-1, 10);
+        vertices[5] = new Vector2(-2.8f, 5.5f);
+        vertices[6] = new Vector2(-3, 2.5f);
+        vertices[7] = new Vector2(-1.5f, 0);
+
+        PolygonShape polygonShape = new PolygonShape();
+        polygonShape.set(vertices);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = polygonShape;
+        fixtureDef.density = 0.1f;
 //        fixtureDef.filter.categoryBits = Constants.CAR;
 //        fixtureDef.filter.maskBits = Constants.GROUND;
-//
-//        body.createFixture(fixtureDef);
+
+        physicsBodyComponent.body.createFixture(fixtureDef);
+*/
 
         RevoluteJointDef jointDef = new RevoluteJointDef();
         jointDef.bodyA = this.physicsBodyComponent.body;
@@ -138,12 +153,13 @@ public class Auto extends Sprite implements IScript {
         float frontTireMaxDriveForce = 500;
         float backTireMaxLateralImpulse = 8.5f;
         float frontTireMaxLateralImpulse = 7.5f;
+//        Tire tire;
 
         Tire tire = new Tire(this.playscreen.world);
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                 backTireMaxDriveForce, backTireMaxLateralImpulse);
         jointDef.bodyB = tire.body;
-        jointDef.localAnchorA.set(-3, 0.75f);
+        jointDef.localAnchorA.set(-3, -4f);
         this.playscreen.world.createJoint(jointDef);
         tires.add(tire);
 
@@ -151,31 +167,31 @@ public class Auto extends Sprite implements IScript {
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                 backTireMaxDriveForce, backTireMaxLateralImpulse);
         jointDef.bodyB = tire.body;
-        jointDef.localAnchorA.set(3, 0.75f);
+        jointDef.localAnchorA.set(3, -4f);
         this.playscreen.world.createJoint(jointDef);
         tires.add(tire);
 
+
         tire = new Tire(this.playscreen.world);
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                 frontTireMaxDriveForce, frontTireMaxLateralImpulse);
         jointDef.bodyB = tire.body;
-        jointDef.localAnchorA.set(-3, 8.5f);
-        leftJoint = (RevoluteJoint)this.playscreen.world.createJoint(jointDef);
+        jointDef.localAnchorA.set(-3, 4f);
+        leftJoint = (RevoluteJoint) this.playscreen.world.createJoint(jointDef);
         tires.add(tire);
 
         tire = new Tire(this.playscreen.world);
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                 frontTireMaxDriveForce, frontTireMaxLateralImpulse);
         jointDef.bodyB = tire.body;
-        jointDef.localAnchorA.set(3, 8.5f);
-        rightJoint = (RevoluteJoint)this.playscreen.world.createJoint(jointDef);
+        jointDef.localAnchorA.set(3, 4f);
+        rightJoint = (RevoluteJoint) this.playscreen.world.createJoint(jointDef);
         tires.add(tire);
+
+
 //
-
-
-
-
-
+//        this.setRotation(0);
+//        this.physicsBodyComponent.body.getPosition().setAngle(0);
     }
 
     public void update(float dt) {
@@ -207,13 +223,9 @@ public class Auto extends Sprite implements IScript {
         return textureRegionComponent.region;
 
     }
-//
-Array<Tire> tires;
-    RevoluteJoint leftJoint, rightJoint;
-
-
 
     public void update(HashSet<InputManager.Key> keys) {
+
         for (Tire tire : tires) {
             tire.updateFriction();
         }
@@ -226,9 +238,9 @@ Array<Tire> tires;
         float turnPerTimeStep = turnSpeedPerSec / 60.0f;
         float desiredAngle = 0;
 
-        if(keys.contains(InputManager.Key.Left)){
+        if (keys.contains(InputManager.Key.Left)) {
             desiredAngle = lockAngle;
-        } else if(keys.contains(InputManager.Key.Right)){
+        } else if (keys.contains(InputManager.Key.Right)) {
             desiredAngle = -lockAngle;
         }
 
