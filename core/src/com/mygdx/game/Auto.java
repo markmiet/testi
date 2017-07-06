@@ -97,6 +97,14 @@ public class Auto extends Sprite implements IScript {
         float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
         System.out.println("deg="+deg);
 
+        if (w == 0) {
+            BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
+
+            w = (boundingBox.max.x - boundingBox.min.x);
+
+            h = (boundingBox.max.y - boundingBox.min.y);
+        }
+
 
 //        if (w == 0) {
 //            BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
@@ -147,10 +155,10 @@ public class Auto extends Sprite implements IScript {
         jointDef.upperAngle = 0;
         jointDef.localAnchorB.setZero();
 
-        float maxForwardSpeed = 250;
+        float maxForwardSpeed = 6650;
         float maxBackwardSpeed = -40;
-        float backTireMaxDriveForce = 300;
-        float frontTireMaxDriveForce = 500;
+        float backTireMaxDriveForce = 1300;
+        float frontTireMaxDriveForce = 1500;
         float backTireMaxLateralImpulse = 8.5f;
         float frontTireMaxLateralImpulse = 7.5f;
 //        Tire tire;
@@ -159,7 +167,7 @@ public class Auto extends Sprite implements IScript {
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                 backTireMaxDriveForce, backTireMaxLateralImpulse);
         jointDef.bodyB = tire.body;
-        jointDef.localAnchorA.set(-3, -4f);
+        jointDef.localAnchorA.set(-3, -3f);
         this.playscreen.world.createJoint(jointDef);
         tires.add(tire);
 
@@ -167,7 +175,7 @@ public class Auto extends Sprite implements IScript {
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                 backTireMaxDriveForce, backTireMaxLateralImpulse);
         jointDef.bodyB = tire.body;
-        jointDef.localAnchorA.set(3, -4f);
+        jointDef.localAnchorA.set(3, -3f);
         this.playscreen.world.createJoint(jointDef);
         tires.add(tire);
 
@@ -176,7 +184,7 @@ public class Auto extends Sprite implements IScript {
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                 frontTireMaxDriveForce, frontTireMaxLateralImpulse);
         jointDef.bodyB = tire.body;
-        jointDef.localAnchorA.set(-3, 4f);
+        jointDef.localAnchorA.set(-3, 3f);
         leftJoint = (RevoluteJoint) this.playscreen.world.createJoint(jointDef);
         tires.add(tire);
 
@@ -184,7 +192,7 @@ public class Auto extends Sprite implements IScript {
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                 frontTireMaxDriveForce, frontTireMaxLateralImpulse);
         jointDef.bodyB = tire.body;
-        jointDef.localAnchorA.set(3, 4f);
+        jointDef.localAnchorA.set(3, 3f);
         rightJoint = (RevoluteJoint) this.playscreen.world.createJoint(jointDef);
         tires.add(tire);
 
