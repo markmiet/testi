@@ -10,10 +10,12 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.tarashgames.handlers.InputManager;
 import com.uwsoft.editor.renderer.SceneLoader;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -44,10 +46,10 @@ public class PlayScreen implements Screen {
     private TextureRegionSprite rekka;
     private TextureRegionSprite truck;
 
+    private Auto auto;
 
 
-
-    private List<TextureRegionSprite> rekanOsat=new ArrayList<TextureRegionSprite>();
+    private List<TextureRegionSprite> rekanOsat = new ArrayList<TextureRegionSprite>();
 
     //    private B2WorldCreator creator;
     public PlayScreen(MyGdxGame game) {
@@ -124,6 +126,11 @@ public class PlayScreen implements Screen {
         rootItem.getChild("truck").addScript(truck);
 
 
+        auto = new Auto(this);
+        rootItem = new ItemWrapper(sl.getRoot());
+        rootItem.getChild("auto").addScript(auto);
+
+
 //        Rekka rekka = new Rekka(this);
 //        rootItem = new ItemWrapper(sl.getRoot());
 //        rootItem.getChild("rekka").addScript(rekka);
@@ -153,7 +160,7 @@ public class PlayScreen implements Screen {
         world.step(1 / 60f, 6, 2);
         deer.update(dt);
         deer2.update(dt);
-
+        auto.update(dt);
         ruoho.update(dt);
         rekka.update(dt);
         truck.update(dt);
@@ -229,6 +236,7 @@ public class PlayScreen implements Screen {
         rekka.draw(game.batch);
         truck.draw(game.batch);
 
+        auto.draw(game.batch);
 
 
 //        for (TextureRegionSprite r:rekanOsat) {
@@ -239,7 +247,6 @@ public class PlayScreen implements Screen {
 
         deer.draw(game.batch);
         deer2.draw(game.batch);
-
 
 
 //        rekka.draw(game.batch,delta);
@@ -296,19 +303,30 @@ public class PlayScreen implements Screen {
 //            if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
 //                player.jump();
 
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && deer.physicsBodyComponent.body.getLinearVelocity().x <= 2000)
+        HashSet<InputManager.Key> pressedKeys = new HashSet<InputManager.Key>();
+
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && deer.physicsBodyComponent.body.getLinearVelocity().x <= 2000) {
             deer.physicsBodyComponent.body.applyLinearImpulse(new Vector2(100f, 0), deer.physicsBodyComponent.body.getWorldCenter(), true);
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && deer.physicsBodyComponent.body.getLinearVelocity().x >= -2000)
+
+            pressedKeys.add(InputManager.Key.Right);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && deer.physicsBodyComponent.body.getLinearVelocity().x >= -2000) {
             deer.physicsBodyComponent.body.applyLinearImpulse(new Vector2(-100f, 0), deer.physicsBodyComponent.body.getWorldCenter(), true);
+            pressedKeys.add(InputManager.Key.Left);
+        }
 
-
-        if (Gdx.input.isKeyPressed(Input.Keys.UP))
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             deer.physicsBodyComponent.body.applyLinearImpulse(new Vector2(0, 100f), deer.physicsBodyComponent.body.getWorldCenter(), true);
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && deer.physicsBodyComponent.body.getLinearVelocity().x >= -2000)
-            deer.physicsBodyComponent.body.applyLinearImpulse(new Vector2(0, -100f), deer.physicsBodyComponent.body.getWorldCenter(), true);
+            pressedKeys.add(InputManager.Key.Up);
+        }
 
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && deer.physicsBodyComponent.body.getLinearVelocity().x >= -2000) {
+            deer.physicsBodyComponent.body.applyLinearImpulse(new Vector2(0, -100f), deer.physicsBodyComponent.body.getWorldCenter(), true);
+            pressedKeys.add(InputManager.Key.Down);
+        }
+        auto.update(pressedKeys);
 
     }
-
-
 }
+//    public HashSet<InputManager.Key> pressedKeys = new HashSet<InputManager.Key>();
+

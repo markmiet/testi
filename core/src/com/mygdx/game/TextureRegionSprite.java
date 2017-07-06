@@ -107,15 +107,5 @@ public class TextureRegionSprite extends Sprite implements IScript {
 
     }
 
-//    public void draw(Batch batch, float delta) {
-//        float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
-//
-//        TextureRegion keyFrame = getFrame(delta);
-//        batch.draw(keyFrame, getX(), getY(),
-//                getWidth() / 2.0f,
-//                getHeight() / 2.0f, getWidth(), getHeight(),
-//                1f, 1f, deg-90, false);
-//
-//    }
 
 }
