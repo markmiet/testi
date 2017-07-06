@@ -1,6 +1,5 @@
 package com.mygdx.game;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -12,9 +11,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.uwsoft.editor.renderer.SceneLoader;
-import com.uwsoft.editor.renderer.components.NodeComponent;
-import com.uwsoft.editor.renderer.scripts.IScript;
-import com.uwsoft.editor.renderer.utils.ComponentRetriever;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
 import java.util.ArrayList;
@@ -40,15 +36,18 @@ public class PlayScreen implements Screen {
     private MyGdxGame game;
     private SceneLoader sl;
     private ItemWrapper rootItem;
-    private Deer deer;
-    private Deer deer2;
+    private AnimationSprite deer;
+    private AnimationSprite deer2;
 
 
-    private Ruoho ruoho;
-    private Ruoho rekka;
+    private TextureRegionSprite ruoho;
+    private TextureRegionSprite rekka;
+    private TextureRegionSprite truck;
 
 
-    private List<Ruoho> rekanOsat=new ArrayList<Ruoho>();
+
+
+    private List<TextureRegionSprite> rekanOsat=new ArrayList<TextureRegionSprite>();
 
     //    private B2WorldCreator creator;
     public PlayScreen(MyGdxGame game) {
@@ -101,23 +100,29 @@ public class PlayScreen implements Screen {
         sl = new SceneLoader(); // default scene loader loads all resources from default RM as usual.
         sl.loadScene("MainScene", gamePort); // loading scene as usual
 //        sl.loadScene("MainScene", true); // loading scene as usual
-        deer = new Deer(this);
+        deer = new AnimationSprite(this);
         rootItem = new ItemWrapper(sl.getRoot());
         rootItem.getChild("deer").addScript(deer);
 
-        deer2 = new Deer(this);
+        deer2 = new AnimationSprite(this);
         rootItem = new ItemWrapper(sl.getRoot());
         rootItem.getChild("deer2").addScript(deer2);
 
 
-        ruoho = new Ruoho(this);
+        ruoho = new TextureRegionSprite(this);
         rootItem = new ItemWrapper(sl.getRoot());
         rootItem.getChild("ruoho").addScript(ruoho);
 
 
-        rekka = new Ruoho(this);
+        rekka = new TextureRegionSprite(this);
         rootItem = new ItemWrapper(sl.getRoot());
         rootItem.getChild("rekka").addScript(rekka);
+
+
+        truck = new TextureRegionSprite(this);
+        rootItem = new ItemWrapper(sl.getRoot());
+        rootItem.getChild("truck").addScript(truck);
+
 
 //        Rekka rekka = new Rekka(this);
 //        rootItem = new ItemWrapper(sl.getRoot());
@@ -129,11 +134,11 @@ public class PlayScreen implements Screen {
         NodeComponent n = ComponentRetriever.get(rekkaentity, NodeComponent.class);
 
         for (Entity e : n.children) {
-            Ruoho r = new Ruoho(this);
+            TextureRegionSprite r = new TextureRegionSprite(this);
 
             ItemWrapper ii = new ItemWrapper();
             IScript iskripti=ii.addScript(r);
-            rekanOsat.add((Ruoho)iskripti);
+            rekanOsat.add((TextureRegionSprite)iskripti);
         }
 
 */
@@ -151,9 +156,11 @@ public class PlayScreen implements Screen {
 
         ruoho.update(dt);
         rekka.update(dt);
+        truck.update(dt);
+
 
 //        if (rekanOsat!=null) {
-//            for (Ruoho r:rekanOsat) {
+//            for (TextureRegionSprite r:rekanOsat) {
 //                r.update(dt);
 //            }
 //        }
@@ -220,9 +227,11 @@ public class PlayScreen implements Screen {
 
 //        rekka.draw(game.batch,delta);
         rekka.draw(game.batch);
+        truck.draw(game.batch);
 
 
-//        for (Ruoho r:rekanOsat) {
+
+//        for (TextureRegionSprite r:rekanOsat) {
 //            r.draw(game.batch);
 //        }
 //        deer.draw(game.batch, delta);

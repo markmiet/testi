@@ -18,7 +18,7 @@ import com.uwsoft.editor.renderer.utils.ComponentRetriever;
  * Created by mietmark on 5.7.2017.
  */
 
-public class Ruoho extends Sprite implements IScript {
+public class TextureRegionSprite extends Sprite implements IScript {
 
     public PhysicsBodyComponent physicsBodyComponent;
     Entity entity;
@@ -31,7 +31,7 @@ public class Ruoho extends Sprite implements IScript {
     private float stateTime = 0;
     private TextureRegionComponent textureRegionComponent;
 
-    public Ruoho(PlayScreen playscreen) {
+    public TextureRegionSprite(PlayScreen playscreen) {
         this.playscreen = playscreen;
     }
 
@@ -43,9 +43,7 @@ public class Ruoho extends Sprite implements IScript {
         dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
         polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
         physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
-//        saComponent = ComponentRetriever.get(entity, SpriteAnimationComponent.class);
-//        sasComponent = ComponentRetriever.get(entity, SpriteAnimationStateComponent.class);
-//        walkAnimation = sasComponent.currentAnimation;
+
 
         textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
         if (textureRegionComponent.polygonSprite != null) {
@@ -94,16 +92,6 @@ public class Ruoho extends Sprite implements IScript {
 
             h = (boundingBox.max.y - boundingBox.min.y);
         }
-
-
-//        boundingBox.min.scl(MyGdxGame.PPM);
-//        boundingBox.max.scl(MyGdxGame.PPM);
-//        setBounds(boundingBox.min.x , boundingBox.min.y, (boundingBox.max.x - boundingBox.min.x),
-//                (boundingBox.max.y - boundingBox.min.y) );
-
-//        setBounds(physicsBodyComponent.body.getPosition().x,
-//                physicsBodyComponent.body.getPosition().y,
-//                10,10);
         setBounds(physicsBodyComponent.body.getPosition().x - getWidth() / 2, physicsBodyComponent.body.getPosition().y - getHeight() / 2, w, h);
         this.setOriginCenter();
         float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
