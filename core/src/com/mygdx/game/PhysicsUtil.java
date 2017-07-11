@@ -21,8 +21,6 @@ public abstract class PhysicsUtil {
         switch (fixture.getShape().getType()) {
             case Polygon: {
                 PolygonShape shape = (PolygonShape) fixture.getShape();
-
-
                 Vector2 tmp = new Vector2();
                 shape.getVertex(0, tmp);
                 tmp = fixture.getBody().getWorldPoint(tmp);
@@ -31,7 +29,6 @@ public abstract class PhysicsUtil {
                     shape.getVertex(i, tmp);
                     boundingBox.ext(new Vector3(fixture.getBody().getWorldPoint(tmp), 0));
                 }
-
                 break;
             }
             case Circle: {
@@ -48,7 +45,6 @@ public abstract class PhysicsUtil {
             default:
                 throw new RuntimeException("Type unkown.");
         }
-
         return boundingBox;
     }
 
@@ -62,7 +58,6 @@ public abstract class PhysicsUtil {
 
     public static BoundingBox calculateBoundingBox(Body body) {
         BoundingBox boundingBox = null;
-
         for (Fixture fixture : body.getFixtureList()) {
             if (boundingBox == null) {
                 boundingBox = calculateBoundingBox(fixture);
@@ -70,7 +65,6 @@ public abstract class PhysicsUtil {
                 boundingBox.ext(calculateBoundingBox(fixture));
             }
         }
-
         return boundingBox;
     }
 }

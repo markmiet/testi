@@ -11,17 +11,15 @@ import java.util.List;
  * Created by mietmark on 5.7.2017.
  */
 
-public class SimpleQueryCallback  implements QueryCallback {
+public class SimpleQueryCallback implements QueryCallback {
 
     public List<Body> bodies = new ArrayList<Body>();
 
     private boolean returnValue;
 
     /**
-     *
-     * @param returnValue
-     *            {@code false} to find only one (random) body, {@code true} to
-     *            find all.
+     * @param returnValue {@code false} to find only one (random) body, {@code true} to
+     *                    find all.
      */
     public SimpleQueryCallback(boolean returnValue) {
         this.returnValue = returnValue;

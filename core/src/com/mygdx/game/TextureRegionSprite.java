@@ -38,29 +38,23 @@ public class TextureRegionSprite extends Sprite implements IScript {
     @Override
     public void init(Entity entity) {
         this.entity = entity;
-
         transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
         dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
         polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
         physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
-
-
         textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
         if (textureRegionComponent.polygonSprite != null) {
             System.out.println("pologyonsrpite!=NUll");
         }
-
         defineMario();
     }
 
     @Override
     public void act(float delta) {
-
     }
 
     @Override
     public void dispose() {
-
     }
 
     public void defineMario() {
@@ -70,8 +64,6 @@ public class TextureRegionSprite extends Sprite implements IScript {
                 instanssi.createBody(playscreen.world, this.entity, physicsBodyComponent, polygonComponent.vertices,
                         transformComponent);
         physicsBodyComponent.body.setUserData(this);
-
-
         physicsBodyComponent.body.setAngularDamping(3);
         physicsBodyComponent.body.setLinearDamping(2f);
 
@@ -84,12 +76,9 @@ public class TextureRegionSprite extends Sprite implements IScript {
         if (physicsBodyComponent.body == null) {
             System.out.println("physicsBodyComponent.body==null");
         }
-
         if (w == 0) {
             BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
-
             w = (boundingBox.max.x - boundingBox.min.x);
-
             h = (boundingBox.max.y - boundingBox.min.y);
         }
         setBounds(physicsBodyComponent.body.getPosition().x - getWidth() / 2, physicsBodyComponent.body.getPosition().y - getHeight() / 2, w, h);
@@ -102,7 +91,6 @@ public class TextureRegionSprite extends Sprite implements IScript {
 
     public TextureRegion getFrame(float dt) {
         stateTime += dt;
-
         return textureRegionComponent.region;
 
     }

@@ -15,7 +15,7 @@ import com.tarashgames.handlers.InputManager.Key;
 
 public class Tire {
 
-	public Body body;
+	Body body;
 	float maxForwardSpeed;
 	float maxBackwardSpeed;
 	float maxDriveForce;
@@ -60,7 +60,7 @@ public class Tire {
 		updateTraction();
 	}
 
-	public void setCharacteristics(float maxForwardSpeed, float maxBackwardSpeed,
+	void setCharacteristics(float maxForwardSpeed, float maxBackwardSpeed,
 			float maxDriveForce, float maxLateralImpulse) {
 		this.maxForwardSpeed = maxForwardSpeed;
 		this.maxBackwardSpeed = maxBackwardSpeed;
@@ -68,7 +68,7 @@ public class Tire {
 		this.maxLateralImpulse = maxLateralImpulse;
 	}
 
-	public void updateTraction() {
+	void updateTraction() {
 		if (groundAreas.size == 0) {
 			currentTraction = 1;
 			return;
@@ -83,21 +83,21 @@ public class Tire {
 		}
 	}
 
-	public Vector2 getLateralVelocity() {
+	Vector2 getLateralVelocity() {
 		Vector2 currentRightNormal = body.getWorldVector(new Vector2(1, 0));
 		return CarMath.multiply(
 				currentRightNormal.dot(body.getLinearVelocity()),
 				currentRightNormal);
 	}
 
-	public Vector2 getForwardVelocity() {
+	Vector2 getForwardVelocity() {
 		Vector2 currentForwardNormal = body.getWorldVector(new Vector2(0, 1));
 		return CarMath.multiply(
 				currentForwardNormal.dot(body.getLinearVelocity()),
 				currentForwardNormal);
 	}
 
-	public  void updateFriction() {
+	public void updateFriction() {
 		Vector2 lat = CarMath.minus(getLateralVelocity());
 		
 		Vector2 impulse = CarMath.multiply(body.getMass(),
@@ -119,7 +119,7 @@ public class Tire {
 				currentForwardNormal), body.getWorldCenter(), true);
 	}
 
-	public void updateDrive(HashSet<Key> keys) {
+	void updateDrive(HashSet<Key> keys) {
 		float desiredSpeed = 0;
 
 		if(keys.contains(Key.Up)){
@@ -147,7 +147,7 @@ public class Tire {
 				body.getWorldCenter(), true);
 	}
 	
-	public void updateTurn(CarMoves moves){
+	void updateTurn(CarMoves moves){
 		float desiredTorque = 0;
 		
 		switch(moves){

@@ -13,17 +13,12 @@ import java.util.HashSet;
 
 public class AutoInputManager implements InputProcessor {
 
+    public HashSet<InputManager.Key> pressedKeys = new HashSet<InputManager.Key>();
     Main mainClass;
 
     public AutoInputManager(Main main) {
         this.mainClass = main;
     }
-
-    public enum Key {
-        Up, Down, Right, Left
-    }
-
-    public HashSet<InputManager.Key> pressedKeys = new HashSet<InputManager.Key>();
 
     public void update() {
         mainClass.car.update(pressedKeys);
@@ -70,7 +65,6 @@ public class AutoInputManager implements InputProcessor {
                 pressedKeys.remove(InputManager.Key.Right);
             }
         }
-
         return false;
     }
 
@@ -108,5 +102,9 @@ public class AutoInputManager implements InputProcessor {
     public boolean scrolled(int amount) {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    public enum Key {
+        Up, Down, Right, Left
     }
 }
