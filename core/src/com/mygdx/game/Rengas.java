@@ -9,7 +9,6 @@ import com.tarashgames.car.CarMoves;
 import com.tarashgames.car.GroundAreaType;
 import com.tarashgames.handlers.InputManager;
 import com.uwsoft.editor.renderer.SceneLoader;
-import com.uwsoft.editor.renderer.physics.PhysicsBodyLoader;
 import com.uwsoft.editor.renderer.scripts.IScript;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
@@ -19,7 +18,7 @@ import java.util.HashSet;
  * Created by mietmark on 6.7.2017.
  */
 
-public class Rengas extends TextureRegionSprite implements IScript {
+public class Rengas extends Box2dSprite implements IScript {
 
     float maxForwardSpeed;
     float maxBackwardSpeed;
@@ -27,19 +26,6 @@ public class Rengas extends TextureRegionSprite implements IScript {
     float maxLateralImpulse;
     Array<GroundAreaType> groundAreas;
     float currentTraction;
-
-    public Auto getAuto() {
-        return auto;
-    }
-
-    public boolean isLeft() {
-        return left;
-    }
-
-    public boolean isFront() {
-        return front;
-    }
-
     private Auto auto;
     private boolean left;
     private boolean front;
@@ -57,6 +43,17 @@ public class Rengas extends TextureRegionSprite implements IScript {
         currentTraction = 1;
     }
 
+    public Auto getAuto() {
+        return auto;
+    }
+
+    public boolean isLeft() {
+        return left;
+    }
+
+    public boolean isFront() {
+        return front;
+    }
 
     @Override
     public void act(float delta) {
@@ -67,12 +64,7 @@ public class Rengas extends TextureRegionSprite implements IScript {
     }
 
     public void defineMario() {
-        PhysicsBodyLoader instanssi =
-                PhysicsBodyLoader.getInstance();
-        getPhysicsBodyComponent().body =
-                instanssi.createBody(this.getPlayscreen().getWorld(), this.entity, getPhysicsBodyComponent(), this.getPolygonComponent().vertices,
-                        this.getTransformComponent());
-        getPhysicsBodyComponent().body.setUserData(this);
+        super.defineMario();
         float maxForwardSpeed = 6650;
         float maxBackwardSpeed = -40;
         float backTireMaxDriveForce = 1300;
@@ -83,13 +75,17 @@ public class Rengas extends TextureRegionSprite implements IScript {
         jointDef.bodyB = getPhysicsBodyComponent().body;
         if (this.front && this.left) {
             jointDef.localAnchorA.set(-3, 3f);
-            auto.setLeftJoint((RevoluteJoint) this.getPlayscreen().getWorld().createJoint(jointDef));
+//            RevoluteJoint r = (RevoluteJoint) this.getPlayscreen().getWorld().createJoint(jointDef);
+//            auto.setLeftJoint(r);
+            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
             setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                     frontTireMaxDriveForce, frontTireMaxLateralImpulse);
 
         } else if (this.front && !left) {
             jointDef.localAnchorA.set(3, 3f);
-            auto.setRightJoint( (RevoluteJoint) this.getPlayscreen().getWorld().createJoint(jointDef));
+//            auto.setRightJoint((RevoluteJoint) this.getPlayscreen().getWorld().createJoint(jointDef));
+//            RevoluteJoint r = (RevoluteJoint) this.getPlayscreen().getWorld().createJoint(jointDef);
+            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
             setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                     frontTireMaxDriveForce, frontTireMaxLateralImpulse);
 
@@ -97,12 +93,12 @@ public class Rengas extends TextureRegionSprite implements IScript {
             jointDef.localAnchorA.set(-3, -3f);
             setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                     backTireMaxDriveForce, backTireMaxLateralImpulse);
-            this.getPlayscreen().getWorld().createJoint(jointDef);
+            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
         } else if (!this.front && !this.left) {
             jointDef.localAnchorA.set(3, -3f);
             setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                     backTireMaxDriveForce, backTireMaxLateralImpulse);
-            this.getPlayscreen().getWorld().createJoint(jointDef);
+            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
 
         }
     }

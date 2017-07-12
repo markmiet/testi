@@ -35,10 +35,10 @@ public class TextureRegionSprite extends Sprite implements IScript {
     private ItemWrapper rootItem;
     private String overlap2dIdentifier;
     private STATE currentstate = STATE.NORMAL;
+
     public TextureRegionSprite() {
     }
 
-    ;
 
     public TextureRegionSprite(PlayScreen playscreen, String overlap2dIdentifier) {
         this.playscreen = playscreen;

@@ -19,10 +19,10 @@ import java.util.HashSet;
  * Created by mietmark on 6.7.2017.
  */
 
-public class Auto extends TextureRegionSprite implements IScript, Serializable {
+public class Auto extends Box2dSprite implements IScript, Serializable {
 
     private ArrayList<Rengas> tires;
-    private RevoluteJoint leftJoint, rightJoint;
+    //    private RevoluteJoint leftJoint, rightJoint;
     private RevoluteJointDef jointDef = new RevoluteJointDef();
 
     public Auto(PlayScreen playscreen, String overlap2dIdentifier) {
@@ -36,20 +36,32 @@ public class Auto extends TextureRegionSprite implements IScript, Serializable {
     }
 
     public RevoluteJoint getLeftJoint() {
-        return leftJoint;
+        for (Rengas r : tires) {
+            if (r.isLeft() && r.isFront()) {
+                return (RevoluteJoint) r.getJoint();
+            }
+        }
+        return null;
+//        return leftJoint;
     }
-
-    public void setLeftJoint(RevoluteJoint leftJoint) {
-        this.leftJoint = leftJoint;
-    }
+//
+//    public void setLeftJoint(RevoluteJoint leftJoint) {
+//        this.leftJoint = leftJoint;
+//    }
 
     public RevoluteJoint getRightJoint() {
-        return rightJoint;
+        for (Rengas r : tires) {
+            if (!r.isLeft() && r.isFront()) {
+                return (RevoluteJoint) r.getJoint();
+            }
+        }
+//        return rightJoint;
+        return null;
     }
-
-    public void setRightJoint(RevoluteJoint rightJoint) {
-        this.rightJoint = rightJoint;
-    }
+//
+//    public void setRightJoint(RevoluteJoint rightJoint) {
+//        this.rightJoint = rightJoint;
+//    }
 
     public RevoluteJointDef getJointDef() {
         return jointDef;
@@ -106,23 +118,37 @@ public class Auto extends TextureRegionSprite implements IScript, Serializable {
         float frontTireMaxLateralImpulse = 7.5f;
         Rengas tire;
         tire = new Rengas(this.getPlayscreen(), this, true, true, "vaseneturengas");
+        tire.setParent(this);
         tires.add(tire);
         Rengas tire2 = new Rengas(this.getPlayscreen(), this, true, false, "oikeaeturengas");
+        tire2.setParent(this);
         tires.add(tire2);
         Rengas vasentakarengas = new Rengas(this.getPlayscreen(), this, false, true, "vasentakarengas");
+        vasentakarengas.setParent(this);
         tires.add(vasentakarengas);
         Rengas oikeatakarengas = new Rengas(this.getPlayscreen(), this, false, false, "oikeatakarengas");
+        oikeatakarengas.setParent(this);
         tires.add(oikeatakarengas);
+        this.getChildren().addAll(tires);
     }
 
     public void update(HashSet<InputManager.Key> keys) {
         for (Rengas tire : tires) {
-            tire.updateFriction();
+//            if (tire.getCurrentstate() != STATE.DESTROYED && tire.getCurrentstate() != STATE.TO_BE_DESTROYED)
+//                tire.updateFriction();
+            if (tire.getCurrentstate() != STATE.DESTROYED && tire.getCurrentstate() != STATE.TO_BE_DESTROYED &&
+                    tire.getCurrentstate() != STATE.JOINT_DESTROYED && tire.getCurrentstate() != STATE.JOINT_TO_BE_DESTROYED
+                    ) {
+                tire.updateFriction();
+            }
         }
         for (Rengas tire : tires) {
-            tire.updateDrive(keys);
+            if (tire.getCurrentstate() != STATE.DESTROYED && tire.getCurrentstate() != STATE.TO_BE_DESTROYED &&
+                    tire.getCurrentstate() != STATE.JOINT_DESTROYED && tire.getCurrentstate() != STATE.JOINT_TO_BE_DESTROYED
+                    ) {
+                tire.updateDrive(keys);
+            }
         }
-
         float lockAngle = 35 * Constants.DEGTORAD;
         float turnSpeedPerSec = 160 * Constants.DEGTORAD;
         float turnPerTimeStep = turnSpeedPerSec / 60.0f;
@@ -132,15 +158,34 @@ public class Auto extends TextureRegionSprite implements IScript, Serializable {
         } else if (keys.contains(InputManager.Key.Right)) {
             desiredAngle = -lockAngle;
         }
-        float angleNow = leftJoint.getJointAngle();
-        float angleToTurn = desiredAngle - angleNow;
-        angleToTurn = CarMath.clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
-        float newAngle = angleNow + angleToTurn;
-        leftJoint.setLimits(newAngle, newAngle);
-        rightJoint.setLimits(newAngle, newAngle);
+        RevoluteJoint leftJoint = this.getLeftJoint();
+        RevoluteJoint rightJoint = this.getRightJoint();
+        if (leftJoint != null) {
+            float angleNow = leftJoint.getJointAngle();
+            float angleToTurn = desiredAngle - angleNow;
+            angleToTurn = CarMath.clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
+            float newAngle = angleNow + angleToTurn;
+            leftJoint.setLimits(newAngle, newAngle);
+            if (rightJoint!=null)
+            rightJoint.setLimits(newAngle, newAngle);
+        } else if (rightJoint != null) {
+            float angleNow = rightJoint.getJointAngle();
+            float angleToTurn = desiredAngle - angleNow;
+            angleToTurn = CarMath.clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
+            float newAngle = angleNow + angleToTurn;
+            if (leftJoint!=null)
+            leftJoint.setLimits(newAngle, newAngle);
+            rightJoint.setLimits(newAngle, newAngle);
+        }
 
 
     }
+//    public void update(float dt) {
+//        super.update(dt);
+//        for (Rengas r:this.getTires()) {
+//            r.update(dt);
+//        }
+//    }
 
 
 }

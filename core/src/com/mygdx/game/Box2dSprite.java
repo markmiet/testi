@@ -1,17 +1,316 @@
 package com.mygdx.game;
 
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.physics.box2d.Joint;
+import com.uwsoft.editor.renderer.SceneLoader;
+import com.uwsoft.editor.renderer.components.DimensionsComponent;
+import com.uwsoft.editor.renderer.components.PolygonComponent;
+import com.uwsoft.editor.renderer.components.TextureRegionComponent;
+import com.uwsoft.editor.renderer.components.TransformComponent;
+import com.uwsoft.editor.renderer.components.physics.PhysicsBodyComponent;
+import com.uwsoft.editor.renderer.components.sprite.SpriteAnimationComponent;
+import com.uwsoft.editor.renderer.components.sprite.SpriteAnimationStateComponent;
+import com.uwsoft.editor.renderer.physics.PhysicsBodyLoader;
 import com.uwsoft.editor.renderer.scripts.IScript;
+import com.uwsoft.editor.renderer.utils.ComponentRetriever;
+import com.uwsoft.editor.renderer.utils.ItemWrapper;
+
+import java.util.ArrayList;
 
 /**
  * Created by mietmark on 12.7.2017.
  */
 
-public class  Box2dSprite extends Sprite implements IScript {
+public class Box2dSprite extends Sprite implements IScript {
+    protected Entity entity;
+    protected float w = 0;
+    protected float h = 0;
+    private PhysicsBodyComponent physicsBodyComponent;
+    private TransformComponent transformComponent;
+    private DimensionsComponent dimensionsComponent;
+    private SpriteAnimationComponent saComponent;
+    private SpriteAnimationStateComponent sasComponent;
+    private com.badlogic.gdx.graphics.g2d.Animation walkAnimation;
+
+    private PolygonComponent polygonComponent;
+    private PlayScreen playscreen;
+    private float stateTime = 0;
+    private TextureRegionComponent textureRegionComponent;
+    private SceneLoader sl;
+    private ItemWrapper rootItem;
+    private String overlap2dIdentifier;
+    private STATE currentstate = STATE.NORMAL;
+    private ArrayList<Box2dSprite> children = new ArrayList<Box2dSprite>();
+    private Joint joint;
+    private Box2dSprite parent;
+
+    public Box2dSprite() {
+    }
 
     public Box2dSprite(PlayScreen playscreen, String overlap2dIdentifier) {
+        this.playscreen = playscreen;
+        this.overlap2dIdentifier = overlap2dIdentifier;
+        sl = new SceneLoader();
+        sl.loadScene("MainScene");
+        rootItem = new ItemWrapper(sl.getRoot());
+        rootItem.getChild(overlap2dIdentifier).addScript(this);
 
     }
+
+    public Box2dSprite getParent() {
+        return parent;
+    }
+
+    public void setParent(Box2dSprite parent) {
+        this.parent = parent;
+    }
+
+    public Joint getJoint() {
+        return joint;
+    }
+
+    public void setJoint(Joint joint) {
+        this.joint = joint;
+    }
+
+    public ArrayList<Box2dSprite> getChildren() {
+        return children;
+    }
+
+    public void setChildren(ArrayList<Box2dSprite> children) {
+        this.children = children;
+    }
+
+    public STATE getCurrentstate() {
+        return currentstate;
+    }
+
+    public void setCurrentstate(STATE currentstate) {
+        this.currentstate = currentstate;
+    }
+
+    public PhysicsBodyComponent getPhysicsBodyComponent() {
+        return physicsBodyComponent;
+    }
+
+    public void setPhysicsBodyComponent(PhysicsBodyComponent physicsBodyComponent) {
+        this.physicsBodyComponent = physicsBodyComponent;
+    }
+
+    public Entity getEntity() {
+        return entity;
+    }
+
+    public void setEntity(Entity entity) {
+        this.entity = entity;
+    }
+
+    public float getW() {
+        return w;
+    }
+
+    public void setW(float w) {
+        this.w = w;
+    }
+
+    public float getH() {
+        return h;
+    }
+
+    public void setH(float h) {
+        this.h = h;
+    }
+
+    public TransformComponent getTransformComponent() {
+        return transformComponent;
+    }
+
+    public void setTransformComponent(TransformComponent transformComponent) {
+        this.transformComponent = transformComponent;
+    }
+
+    public DimensionsComponent getDimensionsComponent() {
+        return dimensionsComponent;
+    }
+
+    public void setDimensionsComponent(DimensionsComponent dimensionsComponent) {
+        this.dimensionsComponent = dimensionsComponent;
+    }
+
+    public PolygonComponent getPolygonComponent() {
+        return polygonComponent;
+    }
+
+    public void setPolygonComponent(PolygonComponent polygonComponent) {
+        this.polygonComponent = polygonComponent;
+    }
+
+    public PlayScreen getPlayscreen() {
+        return playscreen;
+    }
+
+    public void setPlayscreen(PlayScreen playscreen) {
+        this.playscreen = playscreen;
+    }
+
+    public float getStateTime() {
+        return stateTime;
+    }
+
+    public void setStateTime(float stateTime) {
+        this.stateTime = stateTime;
+    }
+
+    public TextureRegionComponent getTextureRegionComponent() {
+        return textureRegionComponent;
+    }
+
+    public void setTextureRegionComponent(TextureRegionComponent textureRegionComponent) {
+        this.textureRegionComponent = textureRegionComponent;
+    }
+
+    public SceneLoader getSl() {
+        return sl;
+    }
+
+    public void setSl(SceneLoader sl) {
+        this.sl = sl;
+    }
+
+    public ItemWrapper getRootItem() {
+        return rootItem;
+    }
+
+    public void setRootItem(ItemWrapper rootItem) {
+        this.rootItem = rootItem;
+    }
+
+    public String getOverlap2dIdentifier() {
+        return overlap2dIdentifier;
+    }
+
+    public void setOverlap2dIdentifier(String overlap2dIdentifier) {
+        this.overlap2dIdentifier = overlap2dIdentifier;
+    }
+
+    @Override
+    public void init(Entity entity) {
+        this.entity = entity;
+        transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
+        dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
+        polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
+        physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
+        textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
+        saComponent = ComponentRetriever.get(entity, SpriteAnimationComponent.class);
+        sasComponent = ComponentRetriever.get(entity, SpriteAnimationStateComponent.class);
+        if (sasComponent != null) {
+            walkAnimation = sasComponent.currentAnimation;
+        }
+        defineMario();
+    }
+
+    @Override
+    public void act(float delta) {
+    }
+
+    @Override
+    public void dispose() {
+    }
+
+    public void defineMario() {
+        PhysicsBodyLoader instanssi =
+                PhysicsBodyLoader.getInstance();
+        physicsBodyComponent.body =
+                instanssi.createBody(playscreen.getWorld(), this.entity, physicsBodyComponent, polygonComponent.vertices,
+                        transformComponent);
+        physicsBodyComponent.body.setUserData(this);
+        physicsBodyComponent.body.setAngularDamping(3);
+        physicsBodyComponent.body.setLinearDamping(2f);
+        if (w == 0) {
+            BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
+            w = (boundingBox.max.x - boundingBox.min.x);
+            h = (boundingBox.max.y - boundingBox.min.y);
+        }
+    }
+
+    public void update(float dt) {
+        if (!handleDestroy(dt)) {
+            setBounds(physicsBodyComponent.body.getPosition().x - getWidth() / 2, physicsBodyComponent.body.getPosition().y - getHeight() / 2, w, h);
+            this.setOriginCenter();
+            float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
+            this.setRotation(deg);
+            setRegion(getFrame(dt));
+
+        }
+        for (Box2dSprite c : this.getChildren()) {
+            c.update(dt);
+        }
+    }
+
+    private boolean handleDestroy(float dt) {
+        if (this.currentstate == STATE.TO_BE_DESTROYED) {
+            this.currentstate = STATE.DESTROYED;
+            this.getPlayscreen().getWorld().destroyBody(this.getPhysicsBodyComponent().body);
+            this.getPhysicsBodyComponent().body = null;
+            return true;
+        }
+        if (this.currentstate == STATE.JOINT_TO_BE_DESTROYED && this.getJoint()!=null) {
+            this.currentstate = STATE.JOINT_DESTROYED;
+
+            this.getPlayscreen().getWorld().destroyJoint(this.getJoint());
+
+            this.setJoint(null);
+            return false;
+        } else if (this.currentstate == STATE.DESTROYED) {
+            return true;
+        }
+        return false;
+    }
+
+    private TextureRegion getNormalFrame(float dt) {
+        stateTime += dt;
+        return textureRegionComponent.region;
+
+    }
+
+    public TextureRegion getFrame(float dt) {
+        if (walkAnimation != null) {
+            return getAnimationFrame(dt);
+        } else {
+            return getNormalFrame(dt);
+        }
+    }
+
+    private TextureRegion getAnimationFrame(float dt) {
+        stateTime += dt;
+        TextureRegion region;
+        region = (TextureRegion) walkAnimation.getKeyFrame(stateTime, true);
+        return region;
+    }
+
+    public void draw(Batch batch) {
+        if (this.currentstate == STATE.TO_BE_DESTROYED) {
+//            System.out.println("TO_BE_DESTROYED");
+        } else if (this.currentstate == STATE.DESTROYED) {
+//            System.out.println("DESTROYED");
+        } else {
+            super.draw(batch);
+            for (Box2dSprite c : this.getChildren()) {
+                c.draw(batch);
+            }
+            if (this instanceof Rengas) {
+            }
+        }
+
+    }
+
+
+    public enum STATE {NORMAL, TO_BE_DESTROYED, DESTROYED, JOINT_TO_BE_DESTROYED, JOINT_DESTROYED}
 
 
 }

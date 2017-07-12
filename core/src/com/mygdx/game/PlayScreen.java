@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -17,7 +16,6 @@ import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * Created by mietmark on 4.7.2017.
@@ -32,17 +30,14 @@ public class PlayScreen implements Screen {
     private MyGdxGame game;
     private SceneLoader sl;
     private ItemWrapper rootItem;
-    private AnimationSprite deer;
-    private AnimationSprite deer2;
-    private TextureRegionSprite ruoho;
-    private TextureRegionSprite rekka;
-    private TextureRegionSprite truck;
-    private ArrayList<Auto> autot = new ArrayList<Auto>();
+    //    private AnimationSprite deer;
+//    private AnimationSprite deer2;
+//    private TextureRegionSprite ruoho;
+//    private TextureRegionSprite rekka;
+//    private TextureRegionSprite truck;
+//    private ArrayList<Auto> autot = new ArrayList<Auto>();
 //    private List<TextureRegionSprite> rekanOsat = new ArrayList<TextureRegionSprite>();
-
-
-    private ArrayList<Sprite> sprites = new ArrayList<Sprite>();
-
+    private ArrayList<Box2dSprite> sprites = new ArrayList<Box2dSprite>();
 
     public PlayScreen(MyGdxGame game) {
         this.game = game;
@@ -53,13 +48,21 @@ public class PlayScreen implements Screen {
         world.setContactListener(new WorldContactListener(this));
         sl = new SceneLoader(); // default scene loader loads all resources from default RM as usual.
         sl.loadScene("MainScene", gamePort); // loading scene as usual
-        deer = new AnimationSprite(this, "deer");
-        deer2 = new AnimationSprite(this, "deer2");
-        ruoho = new TextureRegionSprite(this, "ruoho");
-        rekka = new TextureRegionSprite(this, "rekka");
-        truck = new TextureRegionSprite(this, "truck");
+        sprites.add(new Box2dSprite(this, "deer"));
+        sprites.add(new Box2dSprite(this, "deer2"));
+        sprites.add(new Box2dSprite(this, "ruoho"));
+        sprites.add(new Box2dSprite(this, "rekka"));
+        sprites.add(new Box2dSprite(this, "truck"));
         Auto auto = new Auto(this, "auto");
-        autot.add(auto);
+        sprites.add(auto);
+    }
+
+    public ArrayList<Box2dSprite> getSprites() {
+        return sprites;
+    }
+
+    public void setSprites(ArrayList<Box2dSprite> sprites) {
+        this.sprites = sprites;
     }
 
     //Box2d variables
@@ -82,17 +85,20 @@ public class PlayScreen implements Screen {
     public void update(float dt) {
         handleInput(dt);
         world.step(1 / 60f, 6, 2);
-        deer.update(dt);
-        deer2.update(dt);
-        for (Auto auto : autot) {
-            auto.update(dt);
-            for (Rengas r : auto.getTires()) {
-                r.update(dt);
-            }
+//        deer.update(dt);
+//        deer2.update(dt);
+//        for (Auto auto : autot) {
+//            auto.update(dt);
+//            for (Rengas r : auto.getTires()) {
+//                r.update(dt);
+//            }
+//        }
+//        ruoho.update(dt);
+//        rekka.update(dt);
+//        truck.update(dt);
+        for (Box2dSprite b : sprites) {
+            b.update(dt);
         }
-        ruoho.update(dt);
-        rekka.update(dt);
-        truck.update(dt);
         gamecam.update();
     }
 
@@ -107,21 +113,24 @@ public class PlayScreen implements Screen {
         //Clear the game screen with Black
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (b2dr != null)
-            b2dr.render(world, gamecam.combined);
+//        if (b2dr != null)
+//            b2dr.render(world, gamecam.combined);
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
-        ruoho.draw(game.batch);
-        rekka.draw(game.batch);
-        truck.draw(game.batch);
-        for (Auto auto : autot) {
-            auto.draw(game.batch);
-            for (Rengas r : auto.getTires()) {
-                r.draw(game.batch);
-            }
+//        ruoho.draw(game.batch);
+//        rekka.draw(game.batch);
+//        truck.draw(game.batch);
+//        for (Auto auto : autot) {
+//            auto.draw(game.batch);
+//            for (Rengas r : auto.getTires()) {
+//                r.draw(game.batch);
+//            }
+//        }
+//        deer.draw(game.batch);
+//        deer2.draw(game.batch);
+        for (Box2dSprite b : sprites) {
+            b.draw(game.batch);
         }
-        deer.draw(game.batch);
-        deer2.draw(game.batch);
         game.batch.end();
 
 
@@ -151,21 +160,33 @@ public class PlayScreen implements Screen {
 
     public void handleInput(float dt) {
         HashSet<InputManager.Key> pressedKeys = new HashSet<InputManager.Key>();
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && deer.physicsBodyComponent.body.getLinearVelocity().x <= 2000) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             pressedKeys.add(InputManager.Key.Right);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && deer.physicsBodyComponent.body.getLinearVelocity().x >= -2000) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             pressedKeys.add(InputManager.Key.Left);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             pressedKeys.add(InputManager.Key.Up);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && deer.physicsBodyComponent.body.getLinearVelocity().x >= -2000) {
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             pressedKeys.add(InputManager.Key.Down);
         }
-        for (Auto auto : autot) {
-            auto.update(pressedKeys);
+        for (Box2dSprite b : sprites) {
+            if (b instanceof Auto) {
+                ((Auto) b).update(pressedKeys);
+            }
         }
     }
+
+    public void removeSprite(Box2dSprite b) {
+        for (Box2dSprite k : sprites) {
+            k.getChildren().remove(b);
+        }
+        sprites.remove(b);
+
+    }
+
+
 }
 
