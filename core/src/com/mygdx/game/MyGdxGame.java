@@ -17,7 +17,6 @@ public class MyGdxGame extends Game {
         batch = new SpriteBatch();
 //		img = new Texture("badlogic.jpg");
         log = new FPSLogger();
-
         setScreen(new PlayScreen(this));
 
     }

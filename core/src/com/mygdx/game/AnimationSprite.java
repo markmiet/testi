@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.uwsoft.editor.renderer.SceneLoader;
 import com.uwsoft.editor.renderer.components.DimensionsComponent;
 import com.uwsoft.editor.renderer.components.PolygonComponent;
 import com.uwsoft.editor.renderer.components.TransformComponent;
@@ -14,6 +15,7 @@ import com.uwsoft.editor.renderer.components.sprite.SpriteAnimationStateComponen
 import com.uwsoft.editor.renderer.physics.PhysicsBodyLoader;
 import com.uwsoft.editor.renderer.scripts.IScript;
 import com.uwsoft.editor.renderer.utils.ComponentRetriever;
+import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
 /**
  * Created by mietmark on 4.7.2017.
@@ -33,9 +35,18 @@ public class AnimationSprite extends Sprite implements IScript {
     private SpriteAnimationStateComponent sasComponent;
     private float stateTime = 0;
     private com.badlogic.gdx.graphics.g2d.Animation walkAnimation;
+    private String overlap2dIdentifier;
+    private SceneLoader sl;
+    private ItemWrapper rootItem;
 
-    public AnimationSprite(PlayScreen playscreen) {
+    public AnimationSprite(PlayScreen playscreen, String overlap2dIdentifier) {
         this.playscreen = playscreen;
+        this.overlap2dIdentifier = overlap2dIdentifier;
+        sl = new SceneLoader();
+        sl.loadScene("MainScene");
+        rootItem = new ItemWrapper(sl.getRoot());
+        rootItem.getChild(overlap2dIdentifier).addScript(this);
+
     }
 
     @Override
@@ -63,20 +74,20 @@ public class AnimationSprite extends Sprite implements IScript {
         PhysicsBodyLoader instanssi =
                 PhysicsBodyLoader.getInstance();
         physicsBodyComponent.body =
-                instanssi.createBody(playscreen.world, this.entity, physicsBodyComponent, polygonComponent.vertices,
+                instanssi.createBody(playscreen.getWorld(), this.entity, physicsBodyComponent, polygonComponent.vertices,
                         transformComponent);
         physicsBodyComponent.body.setUserData(this);
         physicsBodyComponent.body.setAngularDamping(3);
         physicsBodyComponent.body.setLinearDamping(2f);
-
-    }
-
-    public void update(float dt) {
         if (w == 0) {
             BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
             w = (boundingBox.max.x - boundingBox.min.x);
             h = (boundingBox.max.y - boundingBox.min.y);
         }
+
+    }
+
+    public void update(float dt) {
         setBounds(physicsBodyComponent.body.getPosition().x - getWidth() / 2, physicsBodyComponent.body.getPosition().y - getHeight() / 2, w, h);
         this.setOriginCenter();
         float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;

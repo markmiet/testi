@@ -1,9 +1,5 @@
 package com.mygdx.game;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
@@ -11,15 +7,8 @@ import com.tarashgames.car.CarMath;
 import com.tarashgames.car.Constants;
 import com.tarashgames.handlers.InputManager;
 import com.uwsoft.editor.renderer.SceneLoader;
-import com.uwsoft.editor.renderer.components.DimensionsComponent;
-import com.uwsoft.editor.renderer.components.MainItemComponent;
-import com.uwsoft.editor.renderer.components.PolygonComponent;
-import com.uwsoft.editor.renderer.components.TextureRegionComponent;
-import com.uwsoft.editor.renderer.components.TransformComponent;
-import com.uwsoft.editor.renderer.components.physics.PhysicsBodyComponent;
 import com.uwsoft.editor.renderer.physics.PhysicsBodyLoader;
 import com.uwsoft.editor.renderer.scripts.IScript;
-import com.uwsoft.editor.renderer.utils.ComponentRetriever;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
 import java.io.Serializable;
@@ -30,35 +19,44 @@ import java.util.HashSet;
  * Created by mietmark on 6.7.2017.
  */
 
-public class Auto extends Sprite implements IScript, Serializable {
+public class Auto extends TextureRegionSprite implements IScript, Serializable {
 
-    public PhysicsBodyComponent physicsBodyComponent;
-    public String overlap2dIdentifier = null;
-    Entity entity;
-    float w = 0;
-    float h = 0;
-    //
-    ArrayList<Rengas> tires;
-    RevoluteJoint leftJoint, rightJoint;
-    RevoluteJointDef jointDef = new RevoluteJointDef();
-    private TransformComponent transformComponent;
-    private DimensionsComponent dimensionsComponent;
-    private PolygonComponent polygonComponent;
-    private MainItemComponent mainItemComponent;
-    private PlayScreen playscreen;
-    private float stateTime = 0;
-    private TextureRegionComponent textureRegionComponent;
-    private SceneLoader sl;
-    private ItemWrapper rootItem;
-    public Auto(PlayScreen playscreen,String overlap2dIdentifier) {
-        this.playscreen = playscreen;
-        this.overlap2dIdentifier = overlap2dIdentifier;
-        sl=new SceneLoader();
-        sl.loadScene("MainScene");
-        rootItem = new ItemWrapper(sl.getRoot());
-        rootItem.getChild(overlap2dIdentifier).addScript(this);
+    private ArrayList<Rengas> tires;
+    private RevoluteJoint leftJoint, rightJoint;
+    private RevoluteJointDef jointDef = new RevoluteJointDef();
 
+    public Auto(PlayScreen playscreen, String overlap2dIdentifier) {
+        this.setPlayscreen(playscreen);
+        this.setOverlap2dIdentifier(overlap2dIdentifier);
+        this.setSl(new SceneLoader());
+        this.getSl().loadScene("MainScene");
+        this.setRootItem(new ItemWrapper(this.getSl().getRoot()));
+        this.getRootItem().getChild(overlap2dIdentifier).addScript(this);
+//        super(playscreen, overlap2dIdentifier);
+    }
 
+    public RevoluteJoint getLeftJoint() {
+        return leftJoint;
+    }
+
+    public void setLeftJoint(RevoluteJoint leftJoint) {
+        this.leftJoint = leftJoint;
+    }
+
+    public RevoluteJoint getRightJoint() {
+        return rightJoint;
+    }
+
+    public void setRightJoint(RevoluteJoint rightJoint) {
+        this.rightJoint = rightJoint;
+    }
+
+    public RevoluteJointDef getJointDef() {
+        return jointDef;
+    }
+
+    public void setJointDef(RevoluteJointDef jointDef) {
+        this.jointDef = jointDef;
     }
 
     public ArrayList<Rengas> getTires() {
@@ -69,22 +67,6 @@ public class Auto extends Sprite implements IScript, Serializable {
         this.tires = tires;
     }
 
-    @Override
-    public void init(Entity entity) {
-        this.entity = entity;
-        mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
-        transformComponent = ComponentRetriever.get(entity, TransformComponent.class);
-
-
-        dimensionsComponent = ComponentRetriever.get(entity, DimensionsComponent.class);
-        polygonComponent = ComponentRetriever.get(entity, PolygonComponent.class);
-        physicsBodyComponent = ComponentRetriever.get(entity, PhysicsBodyComponent.class);
-        textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
-        if (textureRegionComponent.polygonSprite != null) {
-            System.out.println("pologyonsrpite!=NUll");
-        }
-        defineMario();
-    }
 
     @Override
     public void act(float delta) {
@@ -94,27 +76,24 @@ public class Auto extends Sprite implements IScript, Serializable {
     public void dispose() {
     }
 
+    @Override
     public void defineMario() {
         //
         PhysicsBodyLoader instanssi =
                 PhysicsBodyLoader.getInstance();
-        physicsBodyComponent.body =
-                instanssi.createBody(playscreen.world, this.entity, physicsBodyComponent, polygonComponent.vertices,
-                        transformComponent);
-        physicsBodyComponent.body.setUserData(this);
-        physicsBodyComponent.body.setAngularDamping(3);
-        physicsBodyComponent.body.setLinearDamping(2f);
-        //
-//        float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
+        getPhysicsBodyComponent().body =
+                instanssi.createBody(getPlayscreen().getWorld(), this.entity, getPhysicsBodyComponent(), this.getPolygonComponent().vertices,
+                        this.getTransformComponent());
+        getPhysicsBodyComponent().body.setUserData(this);
+        getPhysicsBodyComponent().body.setAngularDamping(3);
+        getPhysicsBodyComponent().body.setLinearDamping(2f);
         if (w == 0) {
-            BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
+            BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(getPhysicsBodyComponent().body);
             w = (boundingBox.max.x - boundingBox.min.x);
             h = (boundingBox.max.y - boundingBox.min.y);
         }
-
         tires = new ArrayList<Rengas>();
-
-        jointDef.bodyA = this.physicsBodyComponent.body;
+        jointDef.bodyA = getPhysicsBodyComponent().body;
         jointDef.enableLimit = true;
         jointDef.lowerAngle = 0;
         jointDef.upperAngle = 0;
@@ -126,47 +105,14 @@ public class Auto extends Sprite implements IScript, Serializable {
         float backTireMaxLateralImpulse = 8.5f;
         float frontTireMaxLateralImpulse = 7.5f;
         Rengas tire;
-
-
-        tire = new Rengas(this.playscreen, this, true, true, "vaseneturengas");
-//        rootItem.getChild("vaseneturengas").addScript(tire);
+        tire = new Rengas(this.getPlayscreen(), this, true, true, "vaseneturengas");
         tires.add(tire);
-        Rengas tire2 = new Rengas(this.playscreen, this, true, false, "oikeaeturengas");
-//        rootItem.getChild("oikeaeturengas").addScript(tire2);
+        Rengas tire2 = new Rengas(this.getPlayscreen(), this, true, false, "oikeaeturengas");
         tires.add(tire2);
-        Rengas vasentakarengas = new Rengas(this.playscreen, this, false, true, "vasentakarengas");
-//        rootItem.getChild("vasentakarengas").addScript(vasentakarengas);
+        Rengas vasentakarengas = new Rengas(this.getPlayscreen(), this, false, true, "vasentakarengas");
         tires.add(vasentakarengas);
-        Rengas oikeatakarengas = new Rengas(this.playscreen, this, false, false, "oikeatakarengas");
-//        rootItem.getChild("oikeatakarengas").addScript(oikeatakarengas);
+        Rengas oikeatakarengas = new Rengas(this.getPlayscreen(), this, false, false, "oikeatakarengas");
         tires.add(oikeatakarengas);
-    }
-
-    public void update(float dt) {
-        if (physicsBodyComponent == null) {
-            System.out.println("physicsBodyComponent==null");
-        }
-        if (physicsBodyComponent.body == null) {
-            System.out.println("physicsBodyComponent.body==null");
-        }
-        if (w == 0) {
-            BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(physicsBodyComponent.body);
-            w = (boundingBox.max.x - boundingBox.min.x);
-            h = (boundingBox.max.y - boundingBox.min.y);
-        }
-        setBounds(physicsBodyComponent.body.getPosition().x - getWidth() / 2, physicsBodyComponent.body.getPosition().y - getHeight() / 2, w, h);
-         this.setOriginCenter();
-        float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
-        this.setRotation(deg);
-        setRegion(getFrame(dt));
-
-
-    }
-
-    public TextureRegion getFrame(float dt) {
-        stateTime += dt;
-        return textureRegionComponent.region;
-
     }
 
     public void update(HashSet<InputManager.Key> keys) {
@@ -176,6 +122,7 @@ public class Auto extends Sprite implements IScript, Serializable {
         for (Rengas tire : tires) {
             tire.updateDrive(keys);
         }
+
         float lockAngle = 35 * Constants.DEGTORAD;
         float turnSpeedPerSec = 160 * Constants.DEGTORAD;
         float turnPerTimeStep = turnSpeedPerSec / 60.0f;
@@ -191,7 +138,6 @@ public class Auto extends Sprite implements IScript, Serializable {
         float newAngle = angleNow + angleToTurn;
         leftJoint.setLimits(newAngle, newAngle);
         rightJoint.setLimits(newAngle, newAngle);
-
 
 
     }

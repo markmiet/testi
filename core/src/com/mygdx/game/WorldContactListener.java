@@ -21,11 +21,19 @@ public class WorldContactListener implements com.badlogic.gdx.physics.box2d.Cont
 //        System.out.println(contact.getTangentSpeed());
         Fixture fixA = contact.getFixtureA();
         Fixture fixB = contact.getFixtureB();
+        Rengas r=null;
         if (fixA != null && fixA.getBody() != null && fixA.getBody().getUserData() instanceof Rengas) {
-            Rengas r = (Rengas) fixA.getBody().getUserData();
+             r = (Rengas) fixA.getBody().getUserData();
         } else if (fixB != null && fixB.getBody() != null && fixB.getBody().getUserData() instanceof Rengas) {
-            Rengas r = (Rengas) fixB.getBody().getUserData();
+             r = (Rengas) fixB.getBody().getUserData();
 
+        }
+        if (r!=null) {
+            if (r.isFront() && r.isLeft()){
+//                r.getAuto().getPlayscreen().getWorld().destroyJoint(r.getAuto().getLeftJoint());
+
+                r.setCurrentstate(TextureRegionSprite.STATE.TO_BE_DESTROYED);
+            }
         }
     }
 
