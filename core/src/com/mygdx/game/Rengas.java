@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.Array;
 import com.tarashgames.car.CarMath;
@@ -12,6 +11,7 @@ import com.uwsoft.editor.renderer.SceneLoader;
 import com.uwsoft.editor.renderer.scripts.IScript;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -30,7 +30,9 @@ public class Rengas extends Box2dSprite implements IScript {
     private boolean left;
     private boolean front;
 
-    public Rengas(PlayScreen playscreen, Auto auto, boolean front, boolean left, String overlap2dIdentifier) {
+    public Rengas(PlayScreen playscreen, Auto auto, boolean front, boolean left, String overlap2dIdentifier,
+                  ArrayList<Action> collisionActions) {
+        this.setActionsToHappenWhenCollision(collisionActions);
         this.setPlayscreen(playscreen);
         this.setOverlap2dIdentifier(overlap2dIdentifier);
         this.auto = auto;

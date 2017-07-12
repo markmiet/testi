@@ -117,16 +117,19 @@ public class Auto extends Box2dSprite implements IScript, Serializable {
         float backTireMaxLateralImpulse = 8.5f;
         float frontTireMaxLateralImpulse = 7.5f;
         Rengas tire;
-        tire = new Rengas(this.getPlayscreen(), this, true, true, "vaseneturengas");
+        ArrayList cl = new ArrayList<Action>();
+        Action a = new Action(true, false, true, Action.ACTION.DESTROY);
+        cl.add(a);
+        tire = new Rengas(this.getPlayscreen(), this, true, true, "vaseneturengas", cl);
         tire.setParent(this);
         tires.add(tire);
-        Rengas tire2 = new Rengas(this.getPlayscreen(), this, true, false, "oikeaeturengas");
+        Rengas tire2 = new Rengas(this.getPlayscreen(), this, true, false, "oikeaeturengas", null);
         tire2.setParent(this);
         tires.add(tire2);
-        Rengas vasentakarengas = new Rengas(this.getPlayscreen(), this, false, true, "vasentakarengas");
+        Rengas vasentakarengas = new Rengas(this.getPlayscreen(), this, false, true, "vasentakarengas", null);
         vasentakarengas.setParent(this);
         tires.add(vasentakarengas);
-        Rengas oikeatakarengas = new Rengas(this.getPlayscreen(), this, false, false, "oikeatakarengas");
+        Rengas oikeatakarengas = new Rengas(this.getPlayscreen(), this, false, false, "oikeatakarengas", null);
         oikeatakarengas.setParent(this);
         tires.add(oikeatakarengas);
         this.getChildren().addAll(tires);
@@ -136,18 +139,20 @@ public class Auto extends Box2dSprite implements IScript, Serializable {
         for (Rengas tire : tires) {
 //            if (tire.getCurrentstate() != STATE.DESTROYED && tire.getCurrentstate() != STATE.TO_BE_DESTROYED)
 //                tire.updateFriction();
-            if (tire.getCurrentstate() != STATE.DESTROYED && tire.getCurrentstate() != STATE.TO_BE_DESTROYED &&
-                    tire.getCurrentstate() != STATE.JOINT_DESTROYED && tire.getCurrentstate() != STATE.JOINT_TO_BE_DESTROYED
-                    ) {
+//            if (tire.getCurrentstate() != STATE.DESTROYED && tire.getCurrentstate() != STATE.TO_BE_DESTROYED &&
+//                    tire.getCurrentstate() != STATE.JOINT_DESTROYED && tire.getCurrentstate() != STATE.JOINT_TO_BE_DESTROYED
+//                    ) {
+            if (tire.getJoint() != null)
                 tire.updateFriction();
-            }
+//            }
         }
         for (Rengas tire : tires) {
-            if (tire.getCurrentstate() != STATE.DESTROYED && tire.getCurrentstate() != STATE.TO_BE_DESTROYED &&
-                    tire.getCurrentstate() != STATE.JOINT_DESTROYED && tire.getCurrentstate() != STATE.JOINT_TO_BE_DESTROYED
-                    ) {
+//            if (tire.getCurrentstate() != STATE.DESTROYED && tire.getCurrentstate() != STATE.TO_BE_DESTROYED &&
+//                    tire.getCurrentstate() != STATE.JOINT_DESTROYED && tire.getCurrentstate() != STATE.JOINT_TO_BE_DESTROYED
+//                    ) {
+            if (tire.getJoint() != null)
                 tire.updateDrive(keys);
-            }
+//            }
         }
         float lockAngle = 35 * Constants.DEGTORAD;
         float turnSpeedPerSec = 160 * Constants.DEGTORAD;
@@ -166,15 +171,15 @@ public class Auto extends Box2dSprite implements IScript, Serializable {
             angleToTurn = CarMath.clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
             float newAngle = angleNow + angleToTurn;
             leftJoint.setLimits(newAngle, newAngle);
-            if (rightJoint!=null)
-            rightJoint.setLimits(newAngle, newAngle);
+            if (rightJoint != null)
+                rightJoint.setLimits(newAngle, newAngle);
         } else if (rightJoint != null) {
             float angleNow = rightJoint.getJointAngle();
             float angleToTurn = desiredAngle - angleNow;
             angleToTurn = CarMath.clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
             float newAngle = angleNow + angleToTurn;
-            if (leftJoint!=null)
-            leftJoint.setLimits(newAngle, newAngle);
+            if (leftJoint != null)
+                leftJoint.setLimits(newAngle, newAngle);
             rightJoint.setLimits(newAngle, newAngle);
         }
 

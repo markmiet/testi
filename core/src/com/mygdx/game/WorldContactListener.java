@@ -21,23 +21,39 @@ public class WorldContactListener implements com.badlogic.gdx.physics.box2d.Cont
 //        System.out.println(contact.getTangentSpeed());
         Fixture fixA = contact.getFixtureA();
         Fixture fixB = contact.getFixtureB();
-        Rengas r = null;
-        if (fixA != null && fixA.getBody() != null && fixA.getBody().getUserData() instanceof Rengas) {
-            r = (Rengas) fixA.getBody().getUserData();
-        } else if (fixB != null && fixB.getBody() != null && fixB.getBody().getUserData() instanceof Rengas) {
-            r = (Rengas) fixB.getBody().getUserData();
-
+        Box2dSprite r = null;
+        Box2dSprite r2 = null;
+        if (fixA != null && fixA.getBody() != null && fixA.getBody().getUserData() != null) {
+            r = (Box2dSprite) fixA.getBody().getUserData();
+        }
+        if (fixB != null && fixB.getBody() != null && fixB.getBody().getUserData() != null) {
+            r2 = (Box2dSprite) fixB.getBody().getUserData();
         }
         if (r != null) {
-//            if (r.isFront() && r.isLeft()) {
-//                r.getAuto().getPlayscreen().getWorld().destroyJoint(r.getAuto().getLeftJoint());
-                if (r.getCurrentstate() != Box2dSprite.STATE.JOINT_DESTROYED) {
-                    r.setCurrentstate(Box2dSprite.STATE.JOINT_TO_BE_DESTROYED);
-                }
+            if (r.getActionsToHappenWhenCollision() != null && !r.getActionsToHappenWhenCollision().isEmpty()) {
+                for (Action a : r.getActionsToHappenWhenCollision())
+                    r.addToActions(a);
+            }
 
-//            }
+
         }
+        if (r2 != null) {
+            if (r2.getActionsToHappenWhenCollision() != null && !r2.getActionsToHappenWhenCollision().isEmpty()) {
+                for (Action a : r2.getActionsToHappenWhenCollision())
+                    r2.addToActions(a);
+            }
+
+        }
+//        if (r2!=null) {
+//            if (r2.isRemoveFromParentInCollision()) {
+//                r2.setCurrentstate(Box2dSprite.STATE.JOINT_TO_BE_DESTROYED);
+//            }
+//            else if (r2.isDestroyInCollision()) {
+//                r2.setCurrentstate(Box2dSprite.STATE.TO_BE_DESTROYED);
+//            }
+//        }
     }
+
 
     @Override
     public void endContact(Contact contact) {

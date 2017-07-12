@@ -21,6 +21,8 @@ import com.uwsoft.editor.renderer.utils.ComponentRetriever;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by mietmark on 12.7.2017.
@@ -44,10 +46,13 @@ public class Box2dSprite extends Sprite implements IScript {
     private SceneLoader sl;
     private ItemWrapper rootItem;
     private String overlap2dIdentifier;
-    private STATE currentstate = STATE.NORMAL;
+    //    private STATE currentstate = STATE.NORMAL;
     private ArrayList<Box2dSprite> children = new ArrayList<Box2dSprite>();
     private Joint joint;
     private Box2dSprite parent;
+    private CopyOnWriteArrayList<Action> actionsToAct = new CopyOnWriteArrayList<Action>();//eli tuonne aina lisätään
+    private HashSet<Action> alreadyActedActions = new HashSet<Action>();
+    private ArrayList<Action> actionsToHappenWhenCollision;
 
     public Box2dSprite() {
     }
@@ -60,6 +65,14 @@ public class Box2dSprite extends Sprite implements IScript {
         rootItem = new ItemWrapper(sl.getRoot());
         rootItem.getChild(overlap2dIdentifier).addScript(this);
 
+    }
+
+    public ArrayList<Action> getActionsToHappenWhenCollision() {
+        return actionsToHappenWhenCollision;
+    }
+
+    public void setActionsToHappenWhenCollision(ArrayList<Action> actionsToHappenWhenCollision) {
+        this.actionsToHappenWhenCollision = actionsToHappenWhenCollision;
     }
 
     public Box2dSprite getParent() {
@@ -81,17 +94,16 @@ public class Box2dSprite extends Sprite implements IScript {
     public ArrayList<Box2dSprite> getChildren() {
         return children;
     }
+//    public STATE getCurrentstate() {
+//        return currentstate;
+//    }
+//
+//    public void setCurrentstate(STATE currentstate) {
+//        this.currentstate = currentstate;
+//    }
 
     public void setChildren(ArrayList<Box2dSprite> children) {
         this.children = children;
-    }
-
-    public STATE getCurrentstate() {
-        return currentstate;
-    }
-
-    public void setCurrentstate(STATE currentstate) {
-        this.currentstate = currentstate;
     }
 
     public PhysicsBodyComponent getPhysicsBodyComponent() {
@@ -239,37 +251,53 @@ public class Box2dSprite extends Sprite implements IScript {
     }
 
     public void update(float dt) {
-        if (!handleDestroy(dt)) {
-            setBounds(physicsBodyComponent.body.getPosition().x - getWidth() / 2, physicsBodyComponent.body.getPosition().y - getHeight() / 2, w, h);
-            this.setOriginCenter();
-            float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
-            this.setRotation(deg);
-            setRegion(getFrame(dt));
-
-        }
+        handleActions();
+//        if (!handleDestroy(dt)) {
+        setBounds(physicsBodyComponent.body.getPosition().x - getWidth() / 2, physicsBodyComponent.body.getPosition().y - getHeight() / 2, w, h);
+        this.setOriginCenter();
+        float deg = physicsBodyComponent.body.getAngle() * MathUtils.radDeg;
+        this.setRotation(deg);
+        setRegion(getFrame(dt));
+//        }
         for (Box2dSprite c : this.getChildren()) {
             c.update(dt);
         }
     }
+//    private boolean handleDestroy(float dt) {
+//        if (this.currentstate == STATE.TO_BE_DESTROYED) {
+//            this.currentstate = STATE.DESTROYED;
+//            this.getPlayscreen().getWorld().destroyBody(this.getPhysicsBodyComponent().body);
+//            this.getPhysicsBodyComponent().body = null;
+//            return true;
+//        }
+//        if (this.currentstate == STATE.JOINT_TO_BE_DESTROYED && this.getJoint() != null) {
+//            this.currentstate = STATE.JOINT_DESTROYED;
+//            this.getPlayscreen().getWorld().destroyJoint(this.getJoint());
+//            this.setJoint(null);
+//            return false;
+//        } else if (this.currentstate == STATE.DESTROYED) {
+//            return true;
+//        }
+//        return false;
+//    }
 
-    private boolean handleDestroy(float dt) {
-        if (this.currentstate == STATE.TO_BE_DESTROYED) {
-            this.currentstate = STATE.DESTROYED;
-            this.getPlayscreen().getWorld().destroyBody(this.getPhysicsBodyComponent().body);
-            this.getPhysicsBodyComponent().body = null;
-            return true;
+    private void handleActions() {
+        if (!getActionsToAct().isEmpty()) {
+            for (Action c : this.getActionsToAct()) {
+                if (c.getAction() == Action.ACTION.DESTROY && !c.isJoint()) {
+                    this.getPlayscreen().getWorld().destroyBody(this.getPhysicsBodyComponent().body);
+                    this.getPhysicsBodyComponent().body = null;
+                } else if (c.getAction() == Action.ACTION.DESTROY && c.isJoint()) {
+                    System.out.println("c == COLLISION_ACTION.JOINT_DESTROY");
+                    if (this.getJoint() != null) {
+                        this.getPlayscreen().getWorld().destroyJoint(this.getJoint());
+                        this.setJoint(null);
+                    }
+                }
+                this.getActionsToAct().remove(c);
+            }
+
         }
-        if (this.currentstate == STATE.JOINT_TO_BE_DESTROYED && this.getJoint()!=null) {
-            this.currentstate = STATE.JOINT_DESTROYED;
-
-            this.getPlayscreen().getWorld().destroyJoint(this.getJoint());
-
-            this.setJoint(null);
-            return false;
-        } else if (this.currentstate == STATE.DESTROYED) {
-            return true;
-        }
-        return false;
     }
 
     private TextureRegion getNormalFrame(float dt) {
@@ -294,23 +322,47 @@ public class Box2dSprite extends Sprite implements IScript {
     }
 
     public void draw(Batch batch) {
-        if (this.currentstate == STATE.TO_BE_DESTROYED) {
-//            System.out.println("TO_BE_DESTROYED");
-        } else if (this.currentstate == STATE.DESTROYED) {
-//            System.out.println("DESTROYED");
-        } else {
-            super.draw(batch);
-            for (Box2dSprite c : this.getChildren()) {
-                c.draw(batch);
-            }
-            if (this instanceof Rengas) {
-            }
+//        if (this.currentstate == STATE.TO_BE_DESTROYED) {
+////            System.out.println("TO_BE_DESTROYED");
+//        } else if (this.currentstate == STATE.DESTROYED) {
+////            System.out.println("DESTROYED");
+//        } else {
+//            super.draw(batch);
+//            for (Box2dSprite c : this.getChildren()) {
+//                c.draw(batch);
+//            }
+//        }
+        super.draw(batch);
+        for (Box2dSprite c : this.getChildren()) {
+            c.draw(batch);
         }
-
     }
 
 
-    public enum STATE {NORMAL, TO_BE_DESTROYED, DESTROYED, JOINT_TO_BE_DESTROYED, JOINT_DESTROYED}
+    public CopyOnWriteArrayList<Action> getActionsToAct() {
+        return actionsToAct;
+    }
 
+    public void setActionsToAct(CopyOnWriteArrayList<Action> actionsToAct) {
+        this.actionsToAct = actionsToAct;
+    }
 
+    public HashSet<Action> getAlreadyActedActions() {
+        return alreadyActedActions;
+    }
+
+    public void setAlreadyActedActions(HashSet<Action> alreadyActedActions) {
+        this.alreadyActedActions = alreadyActedActions;
+    }
+
+    public void addToActions(Action action) {
+        if (!action.isCanRecur()) {
+            if (!alreadyActedActions.contains(action)) {
+                actionsToAct.add(action);
+            }
+        } else {
+            actionsToAct.add(action);
+        }
+        alreadyActedActions.add(action);
+    }
 }
