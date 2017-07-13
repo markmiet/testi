@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -12,6 +13,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.tarashgames.handlers.InputManager;
 import com.uwsoft.editor.renderer.SceneLoader;
+import com.uwsoft.editor.renderer.components.MainItemComponent;
+import com.uwsoft.editor.renderer.components.NodeComponent;
+import com.uwsoft.editor.renderer.utils.ComponentRetriever;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
 import java.util.ArrayList;
@@ -38,6 +42,7 @@ public class PlayScreen implements Screen {
 //    private ArrayList<Auto> autot = new ArrayList<Auto>();
 //    private List<TextureRegionSprite> rekanOsat = new ArrayList<TextureRegionSprite>();
     private ArrayList<Box2dSprite> sprites = new ArrayList<Box2dSprite>();
+    private Entity root;
 
     public PlayScreen(MyGdxGame game) {
         this.game = game;
@@ -48,13 +53,25 @@ public class PlayScreen implements Screen {
         world.setContactListener(new WorldContactListener(this));
         sl = new SceneLoader(); // default scene loader loads all resources from default RM as usual.
         sl.loadScene("MainScene", gamePort); // loading scene as usual
-        sprites.add(new Box2dSprite(this, "deer"));
-        sprites.add(new Box2dSprite(this, "deer2"));
-        sprites.add(new Box2dSprite(this, "ruoho"));
-        sprites.add(new Box2dSprite(this, "rekka"));
-        sprites.add(new Box2dSprite(this, "truck"));
-        Auto auto = new Auto(this, "auto");
-        sprites.add(auto);
+        root = sl.getRoot();
+        NodeComponent nc = ComponentRetriever.get(root, NodeComponent.class);
+        sprites.add(new Auto(this, "auto"));
+        for (Entity c : nc.children) {
+            MainItemComponent m = ComponentRetriever.get(c, MainItemComponent.class);
+            if (m.itemIdentifier != null && m.itemIdentifier.length() > 0) {
+                if (!m.itemIdentifier.endsWith("rengas")) {
+                    sprites.add(new Box2dSprite(this, m.itemIdentifier));
+                }
+            }
+            
+
+        }
+//        sprites.add(new Box2dSprite(this, "deer"));
+//        sprites.add(new Box2dSprite(this, "deer2"));
+//        sprites.add(new Box2dSprite(this, "ruoho"));
+//        sprites.add(new Box2dSprite(this, "rekka"));
+//        sprites.add(new Box2dSprite(this, "truck"));
+
     }
 
     public ArrayList<Box2dSprite> getSprites() {

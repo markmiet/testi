@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.uwsoft.editor.renderer.SceneLoader;
 import com.uwsoft.editor.renderer.components.DimensionsComponent;
+import com.uwsoft.editor.renderer.components.MainItemComponent;
 import com.uwsoft.editor.renderer.components.PolygonComponent;
 import com.uwsoft.editor.renderer.components.TextureRegionComponent;
 import com.uwsoft.editor.renderer.components.TransformComponent;
@@ -37,6 +38,7 @@ public class Box2dSprite extends Sprite implements IScript {
     private DimensionsComponent dimensionsComponent;
     private SpriteAnimationComponent saComponent;
     private SpriteAnimationStateComponent sasComponent;
+    private MainItemComponent mainItemComponent;
     private com.badlogic.gdx.graphics.g2d.Animation walkAnimation;
 
     private PolygonComponent polygonComponent;
@@ -220,6 +222,8 @@ public class Box2dSprite extends Sprite implements IScript {
         textureRegionComponent = ComponentRetriever.get(entity, TextureRegionComponent.class);
         saComponent = ComponentRetriever.get(entity, SpriteAnimationComponent.class);
         sasComponent = ComponentRetriever.get(entity, SpriteAnimationStateComponent.class);
+        mainItemComponent = ComponentRetriever.get(entity, MainItemComponent.class);
+//        mainItemComponent.itemIdentifier
         if (sasComponent != null) {
             walkAnimation = sasComponent.currentAnimation;
         }
