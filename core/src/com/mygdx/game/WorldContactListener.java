@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 /**
  * Created by mietmark on 7.7.2017.
  */
-
 public class WorldContactListener implements com.badlogic.gdx.physics.box2d.ContactListener {
     PlayScreen screen;
 
@@ -34,15 +33,12 @@ public class WorldContactListener implements com.badlogic.gdx.physics.box2d.Cont
                 for (Action a : r.getActionsToHappenWhenCollision())
                     r.addToActions(a);
             }
-
-
         }
         if (r2 != null) {
             if (r2.getActionsToHappenWhenCollision() != null && !r2.getActionsToHappenWhenCollision().isEmpty()) {
                 for (Action a : r2.getActionsToHappenWhenCollision())
                     r2.addToActions(a);
             }
-
         }
 //        if (r2!=null) {
 //            if (r2.isRemoveFromParentInCollision()) {
@@ -53,7 +49,6 @@ public class WorldContactListener implements com.badlogic.gdx.physics.box2d.Cont
 //            }
 //        }
     }
-
 
     @Override
     public void endContact(Contact contact) {
@@ -66,5 +61,4 @@ public class WorldContactListener implements com.badlogic.gdx.physics.box2d.Cont
     @Override
     public void postSolve(Contact contact, ContactImpulse impulse) {
     }
-
 }

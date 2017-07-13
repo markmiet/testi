@@ -19,7 +19,6 @@ import com.uwsoft.editor.renderer.utils.ItemWrapper;
 /**
  * Created by mietmark on 5.7.2017.
  */
-
 public class TextureRegionSprite extends Sprite implements IScript {
     protected Entity entity;
     protected float w = 0;
@@ -39,7 +38,6 @@ public class TextureRegionSprite extends Sprite implements IScript {
     public TextureRegionSprite() {
     }
 
-
     public TextureRegionSprite(PlayScreen playscreen, String overlap2dIdentifier) {
         this.playscreen = playscreen;
         this.overlap2dIdentifier = overlap2dIdentifier;
@@ -47,7 +45,6 @@ public class TextureRegionSprite extends Sprite implements IScript {
         sl.loadScene("MainScene");
         rootItem = new ItemWrapper(sl.getRoot());
         rootItem.getChild(overlap2dIdentifier).addScript(this);
-
     }
 
     public STATE getCurrentstate() {
@@ -223,11 +220,7 @@ public class TextureRegionSprite extends Sprite implements IScript {
     public TextureRegion getFrame(float dt) {
         stateTime += dt;
         return textureRegionComponent.region;
-
     }
 
-
     public enum STATE {NORMAL, TO_BE_DESTROYED, DESTROYED, JOINT_TO_BE_DESTROYED, JOINT_DESTROYED}
-
-
 }

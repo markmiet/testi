@@ -1,53 +1,47 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.Array;
 import com.tarashgames.car.CarMath;
 import com.tarashgames.car.CarMoves;
 import com.tarashgames.car.GroundAreaType;
 import com.tarashgames.handlers.InputManager;
-import com.uwsoft.editor.renderer.SceneLoader;
+import com.uwsoft.editor.renderer.components.MainItemComponent;
 import com.uwsoft.editor.renderer.scripts.IScript;
-import com.uwsoft.editor.renderer.utils.ItemWrapper;
+import com.uwsoft.editor.renderer.utils.ComponentRetriever;
+import com.uwsoft.editor.renderer.utils.CustomVariables;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
- * Created by mietmark on 6.7.2017.
+ * Created by mietmark on 13.7.2017.
  */
-
-public class Rengas extends Box2dSprite implements IScript {
-
+public class Tire extends Box2dSprite implements IScript {
     float maxForwardSpeed;
     float maxBackwardSpeed;
     float maxDriveForce;
     float maxLateralImpulse;
     Array<GroundAreaType> groundAreas;
     float currentTraction;
-    private Auto auto;
+    //    private Car auto;
     private boolean left;
     private boolean front;
 
-    public Rengas(PlayScreen playscreen, Auto auto, boolean front, boolean left, String overlap2dIdentifier,
-                  ArrayList<Action> collisionActions) {
-        this.setActionsToHappenWhenCollision(collisionActions);
-        this.setPlayscreen(playscreen);
-        this.setOverlap2dIdentifier(overlap2dIdentifier);
-        this.auto = auto;
-        this.front = front;
-        this.left = left;
-        this.setSl(new SceneLoader());
-        this.getSl().loadScene("MainScene");
-        this.setRootItem(new ItemWrapper(this.getSl().getRoot()));
-        this.getRootItem().getChild(overlap2dIdentifier).addScript(this);
+    public Tire(PlayScreen playscreen, String overlap2dIdentifier, Box2dSprite parent) {
+//        this.setActionsToHappenWhenCollision(collisionActions);
+//        this.setPlayscreen(playscreen);
+//        this.setOverlap2dIdentifier(overlap2dIdentifier);
+//        this.auto = (Car) parent;
+//        this.setSl(new SceneLoader());
+//        this.getSl().loadScene("MainScene");
+//        this.setRootItem(new ItemWrapper(this.getSl().getRoot()));
+//        this.getRootItem().getChild(overlap2dIdentifier).addScript(this);
+        super(playscreen, overlap2dIdentifier, parent);
         currentTraction = 1;
     }
-
-    public Auto getAuto() {
-        return auto;
-    }
+//    public Car getAuto() {
+//        return auto;
+//    }
 
     public boolean isLeft() {
         return left;
@@ -67,44 +61,45 @@ public class Rengas extends Box2dSprite implements IScript {
 
     public void defineMario() {
         super.defineMario();
+        MainItemComponent m = ComponentRetriever.get(this.entity, MainItemComponent.class);
+        CustomVariables customVariables = new CustomVariables();
+        customVariables.loadFromString(m.customVars);
+        String l = customVariables.getStringVariable("left");
+        String f = customVariables.getStringVariable("front");
+        this.left = Boolean.parseBoolean(l);
+        this.front = Boolean.parseBoolean(f);
         float maxForwardSpeed = 6650;
         float maxBackwardSpeed = -40;
         float backTireMaxDriveForce = 1300;
         float frontTireMaxDriveForce = 1500;
         float backTireMaxLateralImpulse = 8.5f;
         float frontTireMaxLateralImpulse = 7.5f;
-        RevoluteJointDef jointDef = this.auto.getJointDef();
-        jointDef.bodyB = getPhysicsBodyComponent().body;
+//        jointDef.bodyB = getPhysicsBodyComponent().body;
         if (this.front && this.left) {
-            jointDef.localAnchorA.set(-3, 3f);
+//            jointDef.localAnchorA.set(-3, 3f);
 //            RevoluteJoint r = (RevoluteJoint) this.getPlayscreen().getWorld().createJoint(jointDef);
 //            auto.setLeftJoint(r);
-            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
+//            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
             setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                     frontTireMaxDriveForce, frontTireMaxLateralImpulse);
-
         } else if (this.front && !left) {
-            jointDef.localAnchorA.set(3, 3f);
+//            jointDef.localAnchorA.set(3, 3f);
 //            auto.setRightJoint((RevoluteJoint) this.getPlayscreen().getWorld().createJoint(jointDef));
 //            RevoluteJoint r = (RevoluteJoint) this.getPlayscreen().getWorld().createJoint(jointDef);
-            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
+//            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
             setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                     frontTireMaxDriveForce, frontTireMaxLateralImpulse);
-
         } else if (!this.front && this.left) {
-            jointDef.localAnchorA.set(-3, -3f);
             setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                     backTireMaxDriveForce, backTireMaxLateralImpulse);
-            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
+//            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
         } else if (!this.front && !this.left) {
-            jointDef.localAnchorA.set(3, -3f);
+//            jointDef.localAnchorA.set(3, -3f);
             setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
                     backTireMaxDriveForce, backTireMaxLateralImpulse);
-            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
-
+//            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
         }
     }
-
 
     public void addGroundArea(GroundAreaType item) {
         groundAreas.add(item);
@@ -192,7 +187,6 @@ public class Rengas extends Box2dSprite implements IScript {
         getPhysicsBodyComponent().body.applyForce(
                 CarMath.multiply(currentTraction * force, currentForwardNormal),
                 getPhysicsBodyComponent().body.getWorldCenter(), true);
-
     }
 
     public void updateTurn(CarMoves moves) {
@@ -209,6 +203,4 @@ public class Rengas extends Box2dSprite implements IScript {
         }
         this.getPhysicsBodyComponent().body.applyTorque(desiredTorque, true);
     }
-
-
 }

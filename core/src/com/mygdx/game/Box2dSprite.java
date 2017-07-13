@@ -7,9 +7,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.box2d.Joint;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.uwsoft.editor.renderer.SceneLoader;
 import com.uwsoft.editor.renderer.components.DimensionsComponent;
 import com.uwsoft.editor.renderer.components.MainItemComponent;
+import com.uwsoft.editor.renderer.components.NodeComponent;
 import com.uwsoft.editor.renderer.components.PolygonComponent;
 import com.uwsoft.editor.renderer.components.TextureRegionComponent;
 import com.uwsoft.editor.renderer.components.TransformComponent;
@@ -19,6 +21,7 @@ import com.uwsoft.editor.renderer.components.sprite.SpriteAnimationStateComponen
 import com.uwsoft.editor.renderer.physics.PhysicsBodyLoader;
 import com.uwsoft.editor.renderer.scripts.IScript;
 import com.uwsoft.editor.renderer.utils.ComponentRetriever;
+import com.uwsoft.editor.renderer.utils.CustomVariables;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
 import java.util.ArrayList;
@@ -28,7 +31,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by mietmark on 12.7.2017.
  */
-
 public class Box2dSprite extends Sprite implements IScript {
     protected Entity entity;
     protected float w = 0;
@@ -40,7 +42,6 @@ public class Box2dSprite extends Sprite implements IScript {
     private SpriteAnimationStateComponent sasComponent;
     private MainItemComponent mainItemComponent;
     private com.badlogic.gdx.graphics.g2d.Animation walkAnimation;
-
     private PolygonComponent polygonComponent;
     private PlayScreen playscreen;
     private float stateTime = 0;
@@ -54,19 +55,50 @@ public class Box2dSprite extends Sprite implements IScript {
     private Box2dSprite parent;
     private CopyOnWriteArrayList<Action> actionsToAct = new CopyOnWriteArrayList<Action>();//eli tuonne aina lisätään
     private HashSet<Action> alreadyActedActions = new HashSet<Action>();
-    private ArrayList<Action> actionsToHappenWhenCollision;
+    private ArrayList<Action> actionsToHappenWhenCollision=new ArrayList<Action>();
+    private RevoluteJointDef jointDef = new RevoluteJointDef();
 
     public Box2dSprite() {
     }
 
     public Box2dSprite(PlayScreen playscreen, String overlap2dIdentifier) {
+        this(playscreen, overlap2dIdentifier, null);
+    }
+
+    public Box2dSprite(PlayScreen playscreen, String overlap2dIdentifier, Box2dSprite parent) {
         this.playscreen = playscreen;
         this.overlap2dIdentifier = overlap2dIdentifier;
+        this.parent = parent;
+        if (this.parent != null)
+            this.parent.getChildren().add(this);
         sl = new SceneLoader();
         sl.loadScene("MainScene");
         rootItem = new ItemWrapper(sl.getRoot());
         rootItem.getChild(overlap2dIdentifier).addScript(this);
+        //ja childs
+        generateChilds();
+    }
 
+    public RevoluteJointDef getJointDef() {
+        return jointDef;
+    }
+
+    public void setJointDef(RevoluteJointDef jointDef) {
+        this.jointDef = jointDef;
+    }
+
+    public void generateChilds() {
+        NodeComponent nc = ComponentRetriever.get(sl.getRoot(), NodeComponent.class);
+        for (Entity c : nc.children) {
+            MainItemComponent m = ComponentRetriever.get(c, MainItemComponent.class);
+            CustomVariables customVariables = new CustomVariables();
+            customVariables.loadFromString(m.customVars);
+            String parentname = customVariables.getStringVariable("parentname");
+            if (this.overlap2dIdentifier.equals(parentname)) {
+                //child found
+                Box2dSprite children = new Box2dSprite(this.playscreen, m.itemIdentifier, this);
+            }
+        }
     }
 
     public ArrayList<Action> getActionsToHappenWhenCollision() {
@@ -252,6 +284,23 @@ public class Box2dSprite extends Sprite implements IScript {
             w = (boundingBox.max.x - boundingBox.min.x);
             h = (boundingBox.max.y - boundingBox.min.y);
         }
+        if (parent != null) {
+            //jointien teko...
+            RevoluteJointDef jointDef = new RevoluteJointDef();
+            jointDef.bodyA = parent.getPhysicsBodyComponent().body;
+            jointDef.enableLimit = true;
+            jointDef.lowerAngle = 0;
+            jointDef.upperAngle = 0;
+            jointDef.localAnchorB.setZero();
+            jointDef.bodyB = getPhysicsBodyComponent().body;
+            MainItemComponent m = ComponentRetriever.get(this.entity, MainItemComponent.class);
+            CustomVariables customVariables = new CustomVariables();
+            customVariables.loadFromString(m.customVars);
+            jointDef.localAnchorA.set(customVariables.getIntegerVariable("localx").floatValue(),
+                    customVariables.getIntegerVariable("localy").floatValue());
+            setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
+        }
+        setActions();
     }
 
     public void update(float dt) {
@@ -300,14 +349,12 @@ public class Box2dSprite extends Sprite implements IScript {
                 }
                 this.getActionsToAct().remove(c);
             }
-
         }
     }
 
     private TextureRegion getNormalFrame(float dt) {
         stateTime += dt;
         return textureRegionComponent.region;
-
     }
 
     public TextureRegion getFrame(float dt) {
@@ -342,7 +389,6 @@ public class Box2dSprite extends Sprite implements IScript {
         }
     }
 
-
     public CopyOnWriteArrayList<Action> getActionsToAct() {
         return actionsToAct;
     }
@@ -368,5 +414,21 @@ public class Box2dSprite extends Sprite implements IScript {
             actionsToAct.add(action);
         }
         alreadyActedActions.add(action);
+    }
+
+    private void setActions() {
+        MainItemComponent m = ComponentRetriever.get(this.entity, MainItemComponent.class);
+        CustomVariables customVariables = new CustomVariables();
+        customVariables.loadFromString(m.customVars);
+        String str = customVariables.getStringVariable("CA");
+        if (str != null) {
+            String split[] = str.split(";");
+            for (String s : split) {
+                Action a = Action.getAction(s);
+                if (a != null) {
+                    this.getActionsToHappenWhenCollision().add(a);
+                }
+            }
+        }
     }
 }

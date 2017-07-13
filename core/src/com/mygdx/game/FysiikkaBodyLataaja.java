@@ -16,12 +16,9 @@ import com.uwsoft.editor.renderer.utils.TransformMathUtils;
 /**
  * Created by mietmark on 5.7.2017.
  */
-
 public class FysiikkaBodyLataaja {
     private static FysiikkaBodyLataaja instance;
-
     public float scale;
-
     public float mul;
 
     private FysiikkaBodyLataaja() {
@@ -83,7 +80,6 @@ public class FysiikkaBodyLataaja {
                 verts[j + 1] = minPolygonData[i][j / 2].y * scale;
                 minPolygonData[i][j / 2].x = tempX;
                 minPolygonData[i][j / 2].y = tempY;
-
             }
             polygonShape.set(verts);
             fixtureDef.shape = polygonShape;
@@ -91,7 +87,6 @@ public class FysiikkaBodyLataaja {
         }
         return body;
     }
-
 
     public BodyDef createBodyDef(World world, Entity entity, PhysicsBodyComponent physicsComponent, Vector2[][] minPolygonData, TransformComponent transformComponent) {
         FixtureDef fixtureDef = new FixtureDef();
@@ -142,5 +137,4 @@ public class FysiikkaBodyLataaja {
         return bodyDef;
     }
 //    public createBody()
-
 }

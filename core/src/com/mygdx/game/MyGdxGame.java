@@ -18,7 +18,6 @@ public class MyGdxGame extends Game {
 //		img = new Texture("badlogic.jpg");
         log = new FPSLogger();
         setScreen(new PlayScreen(this));
-
     }
 
     @Override

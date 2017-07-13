@@ -16,6 +16,7 @@ import com.uwsoft.editor.renderer.SceneLoader;
 import com.uwsoft.editor.renderer.components.MainItemComponent;
 import com.uwsoft.editor.renderer.components.NodeComponent;
 import com.uwsoft.editor.renderer.utils.ComponentRetriever;
+import com.uwsoft.editor.renderer.utils.CustomVariables;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import java.util.HashSet;
 /**
  * Created by mietmark on 4.7.2017.
  */
-
 public class PlayScreen implements Screen {
     private World world;
     //basic playscreen variables
@@ -55,23 +55,26 @@ public class PlayScreen implements Screen {
         sl.loadScene("MainScene", gamePort); // loading scene as usual
         root = sl.getRoot();
         NodeComponent nc = ComponentRetriever.get(root, NodeComponent.class);
-        sprites.add(new Auto(this, "auto"));
         for (Entity c : nc.children) {
             MainItemComponent m = ComponentRetriever.get(c, MainItemComponent.class);
-            if (m.itemIdentifier != null && m.itemIdentifier.length() > 0) {
+            CustomVariables customVariables = new CustomVariables();
+            customVariables.loadFromString(m.customVars);
+            String parentname = customVariables.getStringVariable("parentname");
+            if (m.itemIdentifier != null && m.itemIdentifier.length() > 0
+                    && m.itemIdentifier.startsWith("car") &&
+                    parentname == null) {
+                sprites.add(new Car(this, m.itemIdentifier));
+            } else if (m.itemIdentifier != null && m.itemIdentifier.length() > 0 && parentname == null) {
                 if (!m.itemIdentifier.endsWith("rengas")) {
                     sprites.add(new Box2dSprite(this, m.itemIdentifier));
                 }
             }
-            
-
         }
 //        sprites.add(new Box2dSprite(this, "deer"));
 //        sprites.add(new Box2dSprite(this, "deer2"));
 //        sprites.add(new Box2dSprite(this, "ruoho"));
 //        sprites.add(new Box2dSprite(this, "rekka"));
 //        sprites.add(new Box2dSprite(this, "truck"));
-
     }
 
     public ArrayList<Box2dSprite> getSprites() {
@@ -119,7 +122,6 @@ public class PlayScreen implements Screen {
         gamecam.update();
     }
 
-
     @Override
     public void show() {
     }
@@ -149,8 +151,6 @@ public class PlayScreen implements Screen {
             b.draw(game.batch);
         }
         game.batch.end();
-
-
     }
 
     @Override
@@ -190,8 +190,8 @@ public class PlayScreen implements Screen {
             pressedKeys.add(InputManager.Key.Down);
         }
         for (Box2dSprite b : sprites) {
-            if (b instanceof Auto) {
-                ((Auto) b).update(pressedKeys);
+            if (b instanceof Car) {
+                ((Car) b).update(pressedKeys);
             }
         }
     }
@@ -201,9 +201,6 @@ public class PlayScreen implements Screen {
             k.getChildren().remove(b);
         }
         sprites.remove(b);
-
     }
-
-
 }
 

@@ -3,7 +3,6 @@ package com.mygdx.game;
 /**
  * Created by mietmark on 12.7.2017.
  */
-
 public class Action {
     private boolean collisionAction;
     private boolean canRecur;
@@ -15,7 +14,13 @@ public class Action {
         this.canRecur = canRecur;
         this.joint = joint;
         this.action = action;
+    }
 
+    public static Action getAction(String str) {
+        if (str.equals("DJ")) {
+            return new Action(true, false, true, ACTION.DESTROY);
+        }
+        return null;
     }
 
     public ACTION getAction() {

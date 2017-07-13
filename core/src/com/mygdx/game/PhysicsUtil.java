@@ -11,7 +11,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import java.util.List;
 
 public abstract class PhysicsUtil {
-
     /**
      * Calculates a {@link BoundingBox} for the given {@link Fixture}. It will
      * be in physics/world coordinates.
@@ -54,7 +53,6 @@ public abstract class PhysicsUtil {
         world.QueryAABB(callback, point.x - delta, point.y - delta, point.x + delta, point.y + delta);
         return callback.bodies;
     }
-
 
     public static BoundingBox calculateBoundingBox(Body body) {
         BoundingBox boundingBox = null;

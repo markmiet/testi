@@ -10,9 +10,7 @@ import java.util.HashSet;
 /**
  * Created by mietmark on 6.7.2017.
  */
-
 public class AutoInputManager implements InputProcessor {
-
     public HashSet<InputManager.Key> pressedKeys = new HashSet<InputManager.Key>();
     Main mainClass;
 

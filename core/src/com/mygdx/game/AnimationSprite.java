@@ -20,9 +20,7 @@ import com.uwsoft.editor.renderer.utils.ItemWrapper;
 /**
  * Created by mietmark on 4.7.2017.
  */
-
 public class AnimationSprite extends Sprite implements IScript {
-
     public PhysicsBodyComponent physicsBodyComponent;
     Entity entity;
     float w = 0;
@@ -46,7 +44,6 @@ public class AnimationSprite extends Sprite implements IScript {
         sl.loadScene("MainScene");
         rootItem = new ItemWrapper(sl.getRoot());
         rootItem.getChild(overlap2dIdentifier).addScript(this);
-
     }
 
     @Override
@@ -84,7 +81,6 @@ public class AnimationSprite extends Sprite implements IScript {
             w = (boundingBox.max.x - boundingBox.min.x);
             h = (boundingBox.max.y - boundingBox.min.y);
         }
-
     }
 
     public void update(float dt) {
@@ -101,5 +97,4 @@ public class AnimationSprite extends Sprite implements IScript {
         region = (TextureRegion) walkAnimation.getKeyFrame(stateTime, true);
         return region;
     }
-
 }

@@ -10,11 +10,8 @@ import java.util.List;
 /**
  * Created by mietmark on 5.7.2017.
  */
-
 public class SimpleQueryCallback implements QueryCallback {
-
     public List<Body> bodies = new ArrayList<Body>();
-
     private boolean returnValue;
 
     /**
@@ -30,5 +27,4 @@ public class SimpleQueryCallback implements QueryCallback {
         bodies.add(fixture.getBody());
         return returnValue;
     }
-
 }
