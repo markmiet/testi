@@ -56,7 +56,7 @@ public class Car extends Box2dSprite implements IScript, Serializable {
 
     public RevoluteJoint getLeftJoint() {
         for (Box2dSprite r : this.getChildren()) {
-            if (((Tire) r).isLeft() && ((Tire) r).isFront()) {
+            if (((Tire) r).isLeftjoint()) {
                 return (RevoluteJoint) r.getJoint();
             }
         }
@@ -65,31 +65,12 @@ public class Car extends Box2dSprite implements IScript, Serializable {
 
     public RevoluteJoint getRightJoint() {
         for (Box2dSprite r : this.getChildren()) {
-            if (!((Tire) r).isLeft() && ((Tire) r).isFront()) {
+            if (((Tire) r).isRightjoint()) {
                 return (RevoluteJoint) r.getJoint();
             }
         }
-//        return rightJoint;
         return null;
     }
-//
-//    public void setRightJoint(RevoluteJoint rightJoint) {
-//        this.rightJoint = rightJoint;
-//    }
-//    public RevoluteJointDef getJointDef() {
-//        return jointDef;
-//    }
-//
-//    public void setJointDef(RevoluteJointDef jointDef) {
-//        this.jointDef = jointDef;
-//    }
-//    public ArrayList<Rengas> getTires() {
-//        return tires;
-//    }
-//
-//    public void setTires(ArrayList<Rengas> tires) {
-//        this.tires = tires;
-//    }
 
     @Override
     public void act(float delta) {
@@ -101,48 +82,12 @@ public class Car extends Box2dSprite implements IScript, Serializable {
 
     @Override
     public void defineMario() {
-//        PhysicsBodyLoader instanssi =
-//                PhysicsBodyLoader.getInstance();
-//        getPhysicsBodyComponent().body =
-//                instanssi.createBody(getPlayscreen().getWorld(), this.entity, getPhysicsBodyComponent(), this.getPolygonComponent().vertices,
-//                        this.getTransformComponent());
-//        getPhysicsBodyComponent().body.setUserData(this);
-//        getPhysicsBodyComponent().body.setAngularDamping(3);
-//        getPhysicsBodyComponent().body.setLinearDamping(2f);
-//        if (w == 0) {
-//            BoundingBox boundingBox = PhysicsUtil.calculateBoundingBox(getPhysicsBodyComponent().body);
-//            w = (boundingBox.max.x - boundingBox.min.x);
-//            h = (boundingBox.max.y - boundingBox.min.y);
-//        }
-//        tires = new ArrayList<Rengas>();
         super.defineMario();
         getJointDef().bodyA = getPhysicsBodyComponent().body;
         getJointDef().enableLimit = true;
         getJointDef().lowerAngle = 0;
         getJointDef().upperAngle = 0;
         getJointDef().localAnchorB.setZero();
-        float maxForwardSpeed = 6650;
-        float maxBackwardSpeed = -40;
-        float backTireMaxDriveForce = 1300;
-        float frontTireMaxDriveForce = 1500;
-        float backTireMaxLateralImpulse = 8.5f;
-        float frontTireMaxLateralImpulse = 7.5f;
-//        ArrayList cl = new ArrayList<Action>();
-//        Action a = new Action(true, false, true, Action.ACTION.DESTROY);
-//        cl.add(a);
-//        Rengas tire = new Rengas(this.getPlayscreen(), this, true, true, "vaseneturengas", cl);
-//        tire.setParent(this);
-//        tires.add(tire);
-//        Rengas tire2 = new Rengas(this.getPlayscreen(), this, true, false, "oikeaeturengas", null);
-//        tire2.setParent(this);
-//        tires.add(tire2);
-//        Rengas vasentakarengas = new Rengas(this.getPlayscreen(), this, false, true, "vasentakarengas", null);
-//        vasentakarengas.setParent(this);
-//        tires.add(vasentakarengas);
-//        Rengas oikeatakarengas = new Rengas(this.getPlayscreen(), this, false, false, "oikeatakarengas", null);
-//        oikeatakarengas.setParent(this);
-//        tires.add(oikeatakarengas);
-//        this.getChildren().addAll(tires);
     }
 
     public void update(HashSet<InputManager.Key> keys) {

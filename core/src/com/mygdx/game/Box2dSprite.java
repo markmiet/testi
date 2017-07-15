@@ -55,7 +55,7 @@ public class Box2dSprite extends Sprite implements IScript {
     private Box2dSprite parent;
     private CopyOnWriteArrayList<Action> actionsToAct = new CopyOnWriteArrayList<Action>();//eli tuonne aina lisätään
     private HashSet<Action> alreadyActedActions = new HashSet<Action>();
-    private ArrayList<Action> actionsToHappenWhenCollision=new ArrayList<Action>();
+    private ArrayList<Action> actionsToHappenWhenCollision = new ArrayList<Action>();
     private RevoluteJointDef jointDef = new RevoluteJointDef();
 
     public Box2dSprite() {
@@ -296,8 +296,25 @@ public class Box2dSprite extends Sprite implements IScript {
             MainItemComponent m = ComponentRetriever.get(this.entity, MainItemComponent.class);
             CustomVariables customVariables = new CustomVariables();
             customVariables.loadFromString(m.customVars);
-            jointDef.localAnchorA.set(customVariables.getIntegerVariable("localx").floatValue(),
-                    customVariables.getIntegerVariable("localy").floatValue());
+            MainItemComponent mParent = ComponentRetriever.get(this.parent.getEntity(), MainItemComponent.class);
+            CustomVariables customVariablesParent = new CustomVariables();
+            customVariablesParent.loadFromString(mParent.customVars);
+            String jPosFromEdit = customVariablesParent.getStringVariable("jPosFromEdit");
+            if ("true".equals(jPosFromEdit)) {
+//                System.out.println("front="+front);
+//                System.out.println("left="+left);
+                System.out.println("parent.getPhysicsBodyComponent().body.getPosition().x=" + parent.getPhysicsBodyComponent().body.getPosition().x);
+                System.out.println("getPhysicsBodyComponent().body.getPosition().x=" + getPhysicsBodyComponent().body.getPosition().x);
+                float x =
+                        this.getPhysicsBodyComponent().body.getPosition().x - parent.getPhysicsBodyComponent().body.getPosition().x;
+                float y =
+                        this.getPhysicsBodyComponent().body.getPosition().y - parent.getPhysicsBodyComponent().body.getPosition().y;
+                jointDef.localAnchorA.set(x, y);
+            } else {
+                jointDef.localAnchorA.set(customVariables.getIntegerVariable("localx").floatValue(),
+                        customVariables.getIntegerVariable("localy").floatValue());
+            }
+//            jointPositionsFromOverlap2
             setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
         }
         setActions();

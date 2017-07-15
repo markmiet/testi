@@ -26,6 +26,8 @@ public class Tire extends Box2dSprite implements IScript {
     //    private Car auto;
     private boolean left;
     private boolean front;
+    private boolean leftjoint;
+    private boolean rightjoint;
 
     public Tire(PlayScreen playscreen, String overlap2dIdentifier, Box2dSprite parent) {
 //        this.setActionsToHappenWhenCollision(collisionActions);
@@ -38,6 +40,22 @@ public class Tire extends Box2dSprite implements IScript {
 //        this.getRootItem().getChild(overlap2dIdentifier).addScript(this);
         super(playscreen, overlap2dIdentifier, parent);
         currentTraction = 1;
+    }
+
+    public boolean isLeftjoint() {
+        return leftjoint;
+    }
+
+    public void setLeftjoint(boolean leftjoint) {
+        this.leftjoint = leftjoint;
+    }
+
+    public boolean isRightjoint() {
+        return rightjoint;
+    }
+
+    public void setRightjoint(boolean rightjoint) {
+        this.rightjoint = rightjoint;
     }
 //    public Car getAuto() {
 //        return auto;
@@ -68,12 +86,29 @@ public class Tire extends Box2dSprite implements IScript {
         String f = customVariables.getStringVariable("front");
         this.left = Boolean.parseBoolean(l);
         this.front = Boolean.parseBoolean(f);
-        float maxForwardSpeed = 6650;
-        float maxBackwardSpeed = -40;
-        float backTireMaxDriveForce = 1300;
-        float frontTireMaxDriveForce = 1500;
-        float backTireMaxLateralImpulse = 8.5f;
-        float frontTireMaxLateralImpulse = 7.5f;
+        String rj = customVariables.getStringVariable("rightjoint");
+        if (rj != null) {
+            this.rightjoint = Boolean.parseBoolean(rj);
+        }
+        String lj = customVariables.getStringVariable("leftjoint");
+        if (lj != null) {
+            this.leftjoint = Boolean.parseBoolean(lj);
+        }
+//        float maxForwardSpeed = 6650;
+//        float maxBackwardSpeed = -40;
+//        float backTireMaxDriveForce = 1300;
+//        float frontTireMaxDriveForce = 1500;
+//        float backTireMaxLateralImpulse = 8.5f;
+//        float frontTireMaxLateralImpulse = 7.5f;
+        MainItemComponent mCar = ComponentRetriever.get(this.getParent().getEntity(), MainItemComponent.class);
+        CustomVariables customVariablesCar = new CustomVariables();
+        customVariablesCar.loadFromString(mCar.customVars);
+        float maxForwardSpeed = customVariablesCar.getFloatVariable("maxForwardSpeed");
+        float maxBackwardSpeed = customVariablesCar.getFloatVariable("maxBackwardSpeed");
+        float backTireMaxDriveForce = customVariablesCar.getFloatVariable("backTireMaxDriveForce");
+        float frontTireMaxDriveForce = customVariablesCar.getFloatVariable("frontTireMaxDriveForce");
+        float backTireMaxLateralImpulse = customVariablesCar.getFloatVariable("backTireMaxLateralImpulse");
+        float frontTireMaxLateralImpulse = customVariablesCar.getFloatVariable("frontTireMaxLateralImpulse");
 //        jointDef.bodyB = getPhysicsBodyComponent().body;
         if (this.front && this.left) {
 //            jointDef.localAnchorA.set(-3, 3f);
