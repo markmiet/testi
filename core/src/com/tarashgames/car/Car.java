@@ -48,7 +48,7 @@ public class Car {
         jointDef.enableLimit = true;
         jointDef.lowerAngle = 0;
         jointDef.upperAngle = 0;
-        jointDef.localAnchorB.setZero();
+//        jointDef.localAnchorB.setZero();
         float maxForwardSpeed = 250;
         float maxBackwardSpeed = -40;
         float backTireMaxDriveForce = 300;

@@ -32,6 +32,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by mietmark on 12.7.2017.
  */
 public class Box2dSprite extends Sprite implements IScript {
+    public static float DEGTORAD = 0.0174532925199432957f;
+    public MainItemComponent mainItemComponent;
     protected Entity entity;
     protected float w = 0;
     protected float h = 0;
@@ -40,7 +42,6 @@ public class Box2dSprite extends Sprite implements IScript {
     private DimensionsComponent dimensionsComponent;
     private SpriteAnimationComponent saComponent;
     private SpriteAnimationStateComponent sasComponent;
-    private MainItemComponent mainItemComponent;
     private com.badlogic.gdx.graphics.g2d.Animation walkAnimation;
     private PolygonComponent polygonComponent;
     private PlayScreen playscreen;
@@ -74,6 +75,7 @@ public class Box2dSprite extends Sprite implements IScript {
         sl = new SceneLoader();
         sl.loadScene("MainScene");
         rootItem = new ItemWrapper(sl.getRoot());
+        //System.out.println("overlap2dIdentifier=" + overlap2dIdentifier);
         rootItem.getChild(overlap2dIdentifier).addScript(this);
         //ja childs
         generateChilds();
@@ -86,6 +88,7 @@ public class Box2dSprite extends Sprite implements IScript {
     public void setJointDef(RevoluteJointDef jointDef) {
         this.jointDef = jointDef;
     }
+
 
     public void generateChilds() {
         NodeComponent nc = ComponentRetriever.get(sl.getRoot(), NodeComponent.class);
@@ -128,13 +131,6 @@ public class Box2dSprite extends Sprite implements IScript {
     public ArrayList<Box2dSprite> getChildren() {
         return children;
     }
-//    public STATE getCurrentstate() {
-//        return currentstate;
-//    }
-//
-//    public void setCurrentstate(STATE currentstate) {
-//        this.currentstate = currentstate;
-//    }
 
     public void setChildren(ArrayList<Box2dSprite> children) {
         this.children = children;
@@ -270,6 +266,19 @@ public class Box2dSprite extends Sprite implements IScript {
     public void dispose() {
     }
 
+    public Box2dSprite get(String itemIdentifier) {
+        if (this.getParent() != null) {
+            if (this.getParent().mainItemComponent.itemIdentifier.equals(itemIdentifier))
+                return this.getParent();
+            for (Box2dSprite c : this.getParent().getChildren()) {
+                if (c.mainItemComponent.itemIdentifier.equals(itemIdentifier)) {
+                    return c;
+                }
+            }
+        }
+        return null;
+    }
+
     public void defineMario() {
         PhysicsBodyLoader instanssi =
                 PhysicsBodyLoader.getInstance();
@@ -286,35 +295,50 @@ public class Box2dSprite extends Sprite implements IScript {
         }
         if (parent != null) {
             //jointien teko...
+            CustomVariables customVariables = new CustomVariables();
+            customVariables.loadFromString(mainItemComponent.customVars);
+            String jPosFromEdit = customVariables.getStringVariable("jPosFromEdit");
             RevoluteJointDef jointDef = new RevoluteJointDef();
             jointDef.bodyA = parent.getPhysicsBodyComponent().body;
+            jointDef.bodyB = getPhysicsBodyComponent().body;
             jointDef.enableLimit = true;
             jointDef.lowerAngle = 0;
             jointDef.upperAngle = 0;
-            jointDef.localAnchorB.setZero();
-            jointDef.bodyB = getPhysicsBodyComponent().body;
-            MainItemComponent m = ComponentRetriever.get(this.entity, MainItemComponent.class);
-            CustomVariables customVariables = new CustomVariables();
-            customVariables.loadFromString(m.customVars);
-            MainItemComponent mParent = ComponentRetriever.get(this.parent.getEntity(), MainItemComponent.class);
-            CustomVariables customVariablesParent = new CustomVariables();
-            customVariablesParent.loadFromString(mParent.customVars);
-            String jPosFromEdit = customVariablesParent.getStringVariable("jPosFromEdit");
-            if ("true".equals(jPosFromEdit)) {
-//                System.out.println("front="+front);
-//                System.out.println("left="+left);
-                System.out.println("parent.getPhysicsBodyComponent().body.getPosition().x=" + parent.getPhysicsBodyComponent().body.getPosition().x);
-                System.out.println("getPhysicsBodyComponent().body.getPosition().x=" + getPhysicsBodyComponent().body.getPosition().x);
-                float x =
-                        this.getPhysicsBodyComponent().body.getPosition().x - parent.getPhysicsBodyComponent().body.getPosition().x;
-                float y =
-                        this.getPhysicsBodyComponent().body.getPosition().y - parent.getPhysicsBodyComponent().body.getPosition().y;
-                jointDef.localAnchorA.set(x, y);
-            } else {
-                jointDef.localAnchorA.set(customVariables.getIntegerVariable("localx").floatValue(),
-                        customVariables.getIntegerVariable("localy").floatValue());
+            float x =
+                    this.getPhysicsBodyComponent().body.getPosition().x - parent.getPhysicsBodyComponent().body.getPosition().x;
+            float y =
+                    this.getPhysicsBodyComponent().body.getPosition().y - parent.getPhysicsBodyComponent().body.getPosition().y;
+            jointDef.localAnchorA.set(x, y);
+            String localAnchorA = customVariables.getStringVariable("localAnchorA");
+            if (localAnchorA != null) {
+                String xy[] = localAnchorA.split(",");
+                jointDef.localAnchorA.set(Float.parseFloat(xy[0]), Float.parseFloat(xy[1]));
             }
-//            jointPositionsFromOverlap2
+            String localAnchorB = customVariables.getStringVariable("localAnchorB");
+            if (localAnchorB != null) {
+                String xy[] = localAnchorB.split(",");
+                jointDef.localAnchorB.set(Float.parseFloat(xy[0]), Float.parseFloat(xy[1]));
+            }
+            String enableLimit = customVariables.getStringVariable("enableLimit");
+            if (enableLimit != null) {
+                jointDef.enableLimit = Boolean.parseBoolean(enableLimit);
+            }
+            String collideConnected = customVariables.getStringVariable("collideConnected");
+            if (collideConnected != null) {
+                jointDef.collideConnected = Boolean.parseBoolean(collideConnected);
+            }
+            String lowerAngle = customVariables.getStringVariable("lowerAngle");
+            if (lowerAngle != null) {
+                jointDef.lowerAngle = Float.parseFloat(lowerAngle) * DEGTORAD;
+            }
+            String upperAngle = customVariables.getStringVariable("upperAngle");
+            if (upperAngle != null) {
+                jointDef.upperAngle = Float.parseFloat(upperAngle) * DEGTORAD;
+            }
+            String referenceAngle = customVariables.getStringVariable("referenceAngle");
+            if (referenceAngle != null) {
+                jointDef.referenceAngle = Float.parseFloat(referenceAngle) * DEGTORAD;
+            }
             setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
         }
         setActions();
@@ -390,16 +414,6 @@ public class Box2dSprite extends Sprite implements IScript {
     }
 
     public void draw(Batch batch) {
-//        if (this.currentstate == STATE.TO_BE_DESTROYED) {
-////            System.out.println("TO_BE_DESTROYED");
-//        } else if (this.currentstate == STATE.DESTROYED) {
-////            System.out.println("DESTROYED");
-//        } else {
-//            super.draw(batch);
-//            for (Box2dSprite c : this.getChildren()) {
-//                c.draw(batch);
-//            }
-//        }
         super.draw(batch);
         for (Box2dSprite c : this.getChildren()) {
             c.draw(batch);

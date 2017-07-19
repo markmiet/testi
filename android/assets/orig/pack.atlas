@@ -4,6 +4,27 @@ size: 1024,512
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
+door
+  rotate: false
+  xy: 682, 494
+  size: 5, 15
+  orig: 5, 15
+  offset: 0, 0
+  index: -1
+dooriso
+  rotate: false
+  xy: 308, 196
+  size: 15, 55
+  orig: 15, 55
+  offset: 0, 0
+  index: -1
+ovenkiinnityspiste
+  rotate: false
+  xy: 91, 82
+  size: 10, 10
+  orig: 10, 10
+  offset: 0, 0
+  index: -1
 rekaneturengas
   rotate: false
   xy: 518, 266

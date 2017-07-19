@@ -20,9 +20,6 @@ import java.util.HashSet;
  * Created by mietmark on 13.7.2017.
  */
 public class Car extends Box2dSprite implements IScript, Serializable {
-    //    private ArrayList<Rengas> tires;
-    //    private RevoluteJoint leftJoint, rightJoint;
-//    private RevoluteJointDef jointDef = new RevoluteJointDef();
 
     public Car(PlayScreen playscreen, String overlap2dIdentifier) {
         this.setPlayscreen(playscreen);
@@ -31,10 +28,9 @@ public class Car extends Box2dSprite implements IScript, Serializable {
         this.getSl().loadScene("MainScene");
         this.setRootItem(new ItemWrapper(this.getSl().getRoot()));
         this.getRootItem().getChild(overlap2dIdentifier).addScript(this);
-//        super(playscreen, overlap2dIdentifier);
         generateChilds();
     }
-
+    @Override
     public void generateChilds() {
         NodeComponent nc = ComponentRetriever.get(this.getSl().getRoot(), NodeComponent.class);
         for (Entity c : nc.children) {
@@ -84,19 +80,15 @@ public class Car extends Box2dSprite implements IScript, Serializable {
     public void defineMario() {
         super.defineMario();
         getJointDef().bodyA = getPhysicsBodyComponent().body;
-        getJointDef().enableLimit = true;
-        getJointDef().lowerAngle = 0;
-        getJointDef().upperAngle = 0;
-        getJointDef().localAnchorB.setZero();
     }
 
     public void update(HashSet<InputManager.Key> keys) {
         for (Box2dSprite r : this.getChildren()) {
-            if (((Tire) r).getJoint() != null)
+            if (r instanceof Tire && ((Tire) r).getJoint() != null)
                 ((Tire) r).updateFriction();
         }
         for (Box2dSprite r : this.getChildren()) {
-            if (((Tire) r).getJoint() != null)
+            if (r instanceof Tire && ((Tire) r).getJoint() != null)
                 ((Tire) r).updateDrive(keys);
         }
         float lockAngle = 35 * Constants.DEGTORAD;
@@ -116,8 +108,9 @@ public class Car extends Box2dSprite implements IScript, Serializable {
             angleToTurn = CarMath.clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
             float newAngle = angleNow + angleToTurn;
             leftJoint.setLimits(newAngle, newAngle);
-            if (rightJoint != null)
+            if (rightJoint != null) {
                 rightJoint.setLimits(newAngle, newAngle);
+            }
         } else if (rightJoint != null) {
             float angleNow = rightJoint.getJointAngle();
             float angleToTurn = desiredAngle - angleNow;

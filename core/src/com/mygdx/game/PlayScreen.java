@@ -77,6 +77,15 @@ public class PlayScreen implements Screen {
 //        sprites.add(new Box2dSprite(this, "truck"));
     }
 
+    public Box2dSprite get(String itemIdentifier) {
+        for (Box2dSprite c : sprites) {
+            if (c.mainItemComponent.itemIdentifier.equals(itemIdentifier)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
     public ArrayList<Box2dSprite> getSprites() {
         return sprites;
     }
@@ -132,8 +141,8 @@ public class PlayScreen implements Screen {
         //Clear the game screen with Black
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//        if (b2dr != null)
-//            b2dr.render(world, gamecam.combined);
+        if (b2dr != null)
+            b2dr.render(world, gamecam.combined);
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
 //        ruoho.draw(game.batch);
@@ -147,9 +156,9 @@ public class PlayScreen implements Screen {
 //        }
 //        deer.draw(game.batch);
 //        deer2.draw(game.batch);
-        for (Box2dSprite b : sprites) {
-            b.draw(game.batch);
-        }
+//        for (Box2dSprite b : sprites) {
+//            b.draw(game.batch);
+//        }
         game.batch.end();
     }
 
