@@ -33,13 +33,19 @@ public class WorldContactListener implements com.badlogic.gdx.physics.box2d.Cont
                 for (Action a : r.getActionsToHappenWhenCollision())
                     r.addToActions(a);
             }
+            r.setUpperAngleAfterCollision();
+
         }
         if (r2 != null) {
             if (r2.getActionsToHappenWhenCollision() != null && !r2.getActionsToHappenWhenCollision().isEmpty()) {
                 for (Action a : r2.getActionsToHappenWhenCollision())
                     r2.addToActions(a);
             }
+            r2.setUpperAngleAfterCollision();
+
         }
+
+
 //        if (r2!=null) {
 //            if (r2.isRemoveFromParentInCollision()) {
 //                r2.setCurrentstate(Box2dSprite.STATE.JOINT_TO_BE_DESTROYED);
@@ -48,6 +54,7 @@ public class WorldContactListener implements com.badlogic.gdx.physics.box2d.Cont
 //                r2.setCurrentstate(Box2dSprite.STATE.TO_BE_DESTROYED);
 //            }
 //        }
+//        contact.
     }
 
     @Override
@@ -56,9 +63,14 @@ public class WorldContactListener implements com.badlogic.gdx.physics.box2d.Cont
 
     @Override
     public void preSolve(Contact contact, Manifold oldManifold) {
+//        oldManifold.
     }
 
     @Override
     public void postSolve(Contact contact, ContactImpulse impulse) {
+//        for (float f:impulse.getNormalImpulses()) {
+//            if (f>10)
+//            System.out.println("f="+f);
+//        }
     }
 }

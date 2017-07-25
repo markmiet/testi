@@ -16,7 +16,7 @@ import java.util.HashSet;
 /**
  * Created by mietmark on 13.7.2017.
  */
-public class Tire extends Box2dSprite implements IScript {
+public class Rengas extends Box2dSprite implements IScript {
     float maxForwardSpeed;
     float maxBackwardSpeed;
     float maxDriveForce;
@@ -28,8 +28,7 @@ public class Tire extends Box2dSprite implements IScript {
     private boolean front;
     private boolean leftjoint;
     private boolean rightjoint;
-
-    public Tire(PlayScreen playscreen, String overlap2dIdentifier, Box2dSprite parent) {
+    public Rengas(PlayScreen playscreen, String overlap2dIdentifier, Box2dSprite parent) {
 //        this.setActionsToHappenWhenCollision(collisionActions);
 //        this.setPlayscreen(playscreen);
 //        this.setOverlap2dIdentifier(overlap2dIdentifier);
@@ -40,6 +39,14 @@ public class Tire extends Box2dSprite implements IScript {
 //        this.getRootItem().getChild(overlap2dIdentifier).addScript(this);
         super(playscreen, overlap2dIdentifier, parent);
         currentTraction = 1;
+    }
+
+    public float getMaxLateralImpulse() {
+        return maxLateralImpulse;
+    }
+
+    public void setMaxLateralImpulse(float maxLateralImpulse) {
+        this.maxLateralImpulse = maxLateralImpulse;
     }
 
     public boolean isLeftjoint() {

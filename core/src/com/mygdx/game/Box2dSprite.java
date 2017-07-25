@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.box2d.Joint;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.uwsoft.editor.renderer.SceneLoader;
 import com.uwsoft.editor.renderer.components.DimensionsComponent;
@@ -24,6 +25,7 @@ import com.uwsoft.editor.renderer.utils.ComponentRetriever;
 import com.uwsoft.editor.renderer.utils.CustomVariables;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -58,7 +60,18 @@ public class Box2dSprite extends Sprite implements IScript {
     private HashSet<Action> alreadyActedActions = new HashSet<Action>();
     private ArrayList<Action> actionsToHappenWhenCollision = new ArrayList<Action>();
     private RevoluteJointDef jointDef = new RevoluteJointDef();
+    private boolean rvj;
+    private boolean draw = true;
 
+    public Float getUpperAngleAfterCollision() {
+        return upperAngleAfterCollision;
+    }
+
+    public void setUpperAngleAfterCollision(Float upperAngleAfterCollision) {
+        this.upperAngleAfterCollision = upperAngleAfterCollision;
+    }
+
+    private Float upperAngleAfterCollision=null;
     public Box2dSprite() {
     }
 
@@ -67,6 +80,34 @@ public class Box2dSprite extends Sprite implements IScript {
     }
 
     public Box2dSprite(PlayScreen playscreen, String overlap2dIdentifier, Box2dSprite parent) {
+        initMjm(playscreen, overlap2dIdentifier, parent);
+    }
+
+    public Box2dSprite(PlayScreen playscreen, String overlap2dIdentifier, Box2dSprite parent, boolean rvj) {
+        this.rvj = rvj;
+        initMjm(playscreen, overlap2dIdentifier, parent);
+    }
+
+    public boolean isDraw() {
+        return draw;
+    }
+
+    public void setDraw(boolean draw) {
+        this.draw = draw;
+    }
+
+
+
+
+    public boolean isRvj() {
+        return rvj;
+    }
+
+    public void setRvj(boolean rvj) {
+        this.rvj = rvj;
+    }
+
+    public void initMjm(PlayScreen playscreen, String overlap2dIdentifier, Box2dSprite parent) {
         this.playscreen = playscreen;
         this.overlap2dIdentifier = overlap2dIdentifier;
         this.parent = parent;
@@ -89,7 +130,6 @@ public class Box2dSprite extends Sprite implements IScript {
         this.jointDef = jointDef;
     }
 
-
     public void generateChilds() {
         NodeComponent nc = ComponentRetriever.get(sl.getRoot(), NodeComponent.class);
         for (Entity c : nc.children) {
@@ -99,7 +139,18 @@ public class Box2dSprite extends Sprite implements IScript {
             String parentname = customVariables.getStringVariable("parentname");
             if (this.overlap2dIdentifier.equals(parentname)) {
                 //child found
-                Box2dSprite children = new Box2dSprite(this.playscreen, m.itemIdentifier, this);
+                String luokka = customVariables.getStringVariable("class");
+                try {
+                    if (luokka == null) {
+                        Box2dSprite children = new Box2dSprite(this.playscreen, m.itemIdentifier, this);
+                    } else {
+                        Class<?> clazz = Class.forName("com.mygdx.game." + luokka);
+                        Constructor<?> constructor = clazz.getConstructor(PlayScreen.class, String.class, Box2dSprite.class);
+                        Object instance = constructor.newInstance(this.playscreen, m.itemIdentifier, this);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -293,10 +344,48 @@ public class Box2dSprite extends Sprite implements IScript {
             w = (boundingBox.max.x - boundingBox.min.x);
             h = (boundingBox.max.y - boundingBox.min.y);
         }
-        if (parent != null) {
+        CustomVariables customVariables = new CustomVariables();
+        customVariables.loadFromString(this.mainItemComponent.customVars);
+        String draws = customVariables.getStringVariable("draw");
+        if ("false".equals(draws)) {
+            draw = false;
+        }
+
+        if (this.isRvj()) {
+            String BID = customVariables.getStringVariable("BID");
+            String AID = customVariables.getStringVariable("AID");
+            Box2dSprite a = this.playscreen.getBox2dSprite(AID);
+            Box2dSprite b = this.playscreen.getBox2dSprite(BID);
+            //eli a ja tämä
+            RevoluteJointDef jointDef = new RevoluteJointDef();
+            jointDef.bodyA = a.getPhysicsBodyComponent().body;
+            jointDef.bodyB = b.getPhysicsBodyComponent().body;
+            jointDef.enableLimit = true;
+            jointDef.lowerAngle = 0;
+            jointDef.upperAngle = 0;
+            float x =
+                    this.getPhysicsBodyComponent().body.getPosition().x - a.getPhysicsBodyComponent().body.getPosition().x;
+            float y =
+                    this.getPhysicsBodyComponent().body.getPosition().y - a.getPhysicsBodyComponent().body.getPosition().y;
+            jointDef.localAnchorA.set(x, y);
+            float xb =
+                    this.getPhysicsBodyComponent().body.getPosition().x - b.getPhysicsBodyComponent().body.getPosition().x;
+            float yb =
+                    this.getPhysicsBodyComponent().body.getPosition().y - b.getPhysicsBodyComponent().body.getPosition().y;
+            jointDef.localAnchorB.set(xb, yb);
+            setCustomvarsToRevoluteJointDef(customVariables, jointDef);
+            b.setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
+
+            String upperAngleAfterCollisions=customVariables.getStringVariable("upperAngleAfterCollision");
+            if (upperAngleAfterCollisions!=null) {
+                b.setUpperAngleAfterCollision(Float.parseFloat(upperAngleAfterCollisions));
+            }
+
+            this.getPlayscreen().getWorld().destroyBody(this.physicsBodyComponent.body);
+        } else if (parent != null && !this.playscreen.isInRvjs(overlap2dIdentifier)) {
             //jointien teko...
-            CustomVariables customVariables = new CustomVariables();
-            customVariables.loadFromString(mainItemComponent.customVars);
+//            CustomVariables customVariables = new CustomVariables();
+//            customVariables.loadFromString(mainItemComponent.customVars);
             String jPosFromEdit = customVariables.getStringVariable("jPosFromEdit");
             RevoluteJointDef jointDef = new RevoluteJointDef();
             jointDef.bodyA = parent.getPhysicsBodyComponent().body;
@@ -309,39 +398,45 @@ public class Box2dSprite extends Sprite implements IScript {
             float y =
                     this.getPhysicsBodyComponent().body.getPosition().y - parent.getPhysicsBodyComponent().body.getPosition().y;
             jointDef.localAnchorA.set(x, y);
-            String localAnchorA = customVariables.getStringVariable("localAnchorA");
-            if (localAnchorA != null) {
-                String xy[] = localAnchorA.split(",");
-                jointDef.localAnchorA.set(Float.parseFloat(xy[0]), Float.parseFloat(xy[1]));
-            }
-            String localAnchorB = customVariables.getStringVariable("localAnchorB");
-            if (localAnchorB != null) {
-                String xy[] = localAnchorB.split(",");
-                jointDef.localAnchorB.set(Float.parseFloat(xy[0]), Float.parseFloat(xy[1]));
-            }
-            String enableLimit = customVariables.getStringVariable("enableLimit");
-            if (enableLimit != null) {
-                jointDef.enableLimit = Boolean.parseBoolean(enableLimit);
-            }
-            String collideConnected = customVariables.getStringVariable("collideConnected");
-            if (collideConnected != null) {
-                jointDef.collideConnected = Boolean.parseBoolean(collideConnected);
-            }
-            String lowerAngle = customVariables.getStringVariable("lowerAngle");
-            if (lowerAngle != null) {
-                jointDef.lowerAngle = Float.parseFloat(lowerAngle) * DEGTORAD;
-            }
-            String upperAngle = customVariables.getStringVariable("upperAngle");
-            if (upperAngle != null) {
-                jointDef.upperAngle = Float.parseFloat(upperAngle) * DEGTORAD;
-            }
-            String referenceAngle = customVariables.getStringVariable("referenceAngle");
-            if (referenceAngle != null) {
-                jointDef.referenceAngle = Float.parseFloat(referenceAngle) * DEGTORAD;
-            }
+            setCustomvarsToRevoluteJointDef(customVariables, jointDef);
+
             setJoint(this.getPlayscreen().getWorld().createJoint(jointDef));
+
         }
         setActions();
+    }
+
+    private void setCustomvarsToRevoluteJointDef(CustomVariables customVariables, RevoluteJointDef jointDef) {
+        String localAnchorA = customVariables.getStringVariable("localAnchorA");
+        if (localAnchorA != null) {
+            String xy[] = localAnchorA.split(",");
+            jointDef.localAnchorA.set(Float.parseFloat(xy[0]), Float.parseFloat(xy[1]));
+        }
+        String localAnchorB = customVariables.getStringVariable("localAnchorB");
+        if (localAnchorB != null) {
+            String xy[] = localAnchorB.split(",");
+            jointDef.localAnchorB.set(Float.parseFloat(xy[0]), Float.parseFloat(xy[1]));
+        }
+        String enableLimit = customVariables.getStringVariable("enableLimit");
+        if (enableLimit != null) {
+            jointDef.enableLimit = Boolean.parseBoolean(enableLimit);
+        }
+        String collideConnected = customVariables.getStringVariable("collideConnected");
+        if (collideConnected != null) {
+            jointDef.collideConnected = Boolean.parseBoolean(collideConnected);
+        }
+        String lowerAngle = customVariables.getStringVariable("lowerAngle");
+        if (lowerAngle != null) {
+            jointDef.lowerAngle = Float.parseFloat(lowerAngle) * DEGTORAD;
+        }
+        String upperAngle = customVariables.getStringVariable("upperAngle");
+        if (upperAngle != null) {
+            jointDef.upperAngle = Float.parseFloat(upperAngle) * DEGTORAD;
+        }
+        String referenceAngle = customVariables.getStringVariable("referenceAngle");
+        if (referenceAngle != null) {
+            jointDef.referenceAngle = Float.parseFloat(referenceAngle) * DEGTORAD;
+        }
     }
 
     public void update(float dt) {
@@ -416,6 +511,7 @@ public class Box2dSprite extends Sprite implements IScript {
     public void draw(Batch batch) {
         super.draw(batch);
         for (Box2dSprite c : this.getChildren()) {
+//            if (c.isDraw())
             c.draw(batch);
         }
     }
@@ -462,4 +558,15 @@ public class Box2dSprite extends Sprite implements IScript {
             }
         }
     }
+    public void setUpperAngleAfterCollision() {
+        if (upperAngleAfterCollision!=null) {
+            if (this.getJoint() instanceof RevoluteJoint) {
+
+                ((RevoluteJoint)this.getJoint()).setLimits(((RevoluteJoint)this.getJoint()).getLowerLimit(),
+                        upperAngleAfterCollision*Box2dSprite.DEGTORAD
+                        );
+            }
+        }
+    }
+
 }

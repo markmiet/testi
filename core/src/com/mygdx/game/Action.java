@@ -8,19 +8,29 @@ public class Action {
     private boolean canRecur;
     private boolean joint;
     private ACTION action;
+    private float force;
 
-    public Action(boolean collisionAction, boolean canRecur, boolean joint, ACTION action) {
+    public Action(boolean collisionAction, boolean canRecur, boolean joint, ACTION action, float force) {
         this.collisionAction = collisionAction;
         this.canRecur = canRecur;
         this.joint = joint;
         this.action = action;
+        this.force = force;
     }
 
     public static Action getAction(String str) {
         if (str.equals("DJ")) {
-            return new Action(true, false, true, ACTION.DESTROY);
+            return new Action(true, false, true, ACTION.DESTROY, 0);
         }
         return null;
+    }
+
+    public float getForce() {
+        return force;
+    }
+
+    public void setForce(float force) {
+        this.force = force;
     }
 
     public ACTION getAction() {
@@ -53,26 +63,6 @@ public class Action {
 
     public void setJoint(boolean joint) {
         this.joint = joint;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Action)) return false;
-        Action action1 = (Action) o;
-        if (isCollisionAction() != action1.isCollisionAction()) return false;
-        if (isCanRecur() != action1.isCanRecur()) return false;
-        if (isJoint() != action1.isJoint()) return false;
-        return getAction() == action1.getAction();
-    }
-
-    @Override
-    public int hashCode() {
-        int result = (isCollisionAction() ? 1 : 0);
-        result = 31 * result + (isCanRecur() ? 1 : 0);
-        result = 31 * result + (isJoint() ? 1 : 0);
-        result = 31 * result + (getAction() != null ? getAction().hashCode() : 0);
-        return result;
     }
 
     public enum ACTION {
